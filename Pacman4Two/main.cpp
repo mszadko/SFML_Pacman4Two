@@ -1,63 +1,57 @@
-#include <SFML/Graphics.hpp>
 #include <iostream>
-
-enum Direction
-{
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT,
-	IDLE
-};
-
-class Player : public sf::Transformable, public sf::Drawable
-{
-public:
-	Player(float radius, sf::Vector2f startPosition)
-	{
-		playerSprite = sf::CircleShape(radius);
-		setPosition(startPosition);
-		playerSprite.setFillColor(sf::Color::Yellow);
-		direction = IDLE;
-		speed = 90.0f;
-	}
-
-	void update(sf::Time deltaTime)
-	{
-		float elapsed = deltaTime.asSeconds();
-		if (direction == UP)
-			move(0, -1* elapsed*speed);
-		else if (direction == DOWN)
-			move(0, 1 * elapsed*speed);
-		else if (direction == LEFT)
-			move(-1 * elapsed*speed, 0);
-		else if (direction == RIGHT)
-			move(1 * elapsed*speed, 0);
-	}
-private:
-
-	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const
-	{
-		states.transform.translate(floorf(getPosition().x), floorf(getPosition().y));
-		target.draw(playerSprite, states);
-	}
-
-
-	sf::CircleShape playerSprite;
-	float speed;
-public:
-	Direction direction;
-};
-
+#include <SFML/Graphics.hpp>
+#include "player.h"
+#include "map.h"
 
 
 
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode(800, 600), "Pacman!");
-	window.setFramerateLimit(650);
-	Player player(15.0f, sf::Vector2f(400.0f, 300.0f));
+
+	const int level[] =
+	{
+		 7,16,16,16,16,16,16,16,16,16,16,16,16, 4, 5,16,16,16,16,16,16,16,16,16,16,16,16, 6,
+		17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,24,27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,19,
+		17, 0,20,25,25,23, 0,20,25,25,25,23, 0,24,27, 0,20,25,25,23, 0,20,25,25,25,23, 0,19,
+		17, 0,24, 1, 1,27, 0,24, 1, 1, 1,27, 0,24,27, 0,24, 1, 1,27, 0,24, 1, 1, 1,27, 0,19,
+		17, 0,21,26,26,22, 0,21,26,26,26,22, 0,21,22, 0,21,26,26,22, 0,21,26,26,26,22, 0,19,
+		17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,19,
+		17, 0,20,25,25,23, 0,20,23, 0,20,25,25,25,25,25,25,23, 0,20,23, 0,20,25,25,23, 0,19,
+		17, 0,21,26,26,22, 0,24,27, 0,21,26,26,23,20,26,26,22, 0,24,27, 0,21,26,26,22, 0,19,
+		17, 0, 0, 0, 0, 0, 0,24,27, 0, 0, 0, 0,24,27, 0, 0, 0, 0,24,27, 0, 0, 0, 0, 0, 0,19,
+		28,18,18,18,18,23, 0,24,21,25,25,23, 0,24,27, 0,20,25,25,22,27, 0,20,18,18,18,18,31,
+		 1, 1, 1, 1, 1,17, 0,24,20,26,26,22, 0,21,22, 0,21,26,26,23,27, 0,19, 1, 1, 1, 1, 1,
+		 1, 1, 1, 1, 1,17, 0,24,27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,24,27, 0,19, 1, 1, 1, 1, 1,
+		 1, 1, 1, 1, 1,17, 0,24,27, 0,10,18,13,15,15,12,18,11, 0,24,27, 0,19, 1, 1, 1, 1, 1,
+		16,16,16,16,16,22, 0,21,22, 0,19, 1, 1, 1, 1, 1, 1,17, 0,21,22, 0,21,16,16,16,16,16,
+		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,19, 1, 1, 1, 1, 1, 1,17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		18,18,18,18,18,23, 0,20,23, 0,19, 1, 1, 1, 1, 1, 1,17, 0,20,23, 0,20,18,18,18,18,18,
+		 1, 1, 1, 1, 1,17, 0,24,27, 0, 8,16,16,16,16,16,16, 9, 0,24,27, 0,19, 1, 1, 1, 1, 1,
+		 1, 1, 1, 1, 1,17, 0,24,27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,24,27, 0,19, 1, 1, 1, 1, 1,
+		 1, 1, 1, 1, 1,17, 0,24,27, 0,20,25,25,25,25,25,25,23, 0,24,27, 0,19, 1, 1, 1, 1, 1,
+		 7,16,16,16,16,22, 0,21,22, 0,21,26,26,23,20,26,26,22, 0,21,22, 0,21,16,16,16,16, 6,
+		17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,24,27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,19,
+		17, 0,20,25,25,23, 0,20,25,25,25,23, 0,24,27, 0,20,25,25,25,23, 0,20,25,25,23, 0,19,
+		17, 0,21,26,23,27, 0,21,26,26,26,22, 0,21,22, 0,21,26,26,26,22, 0,24,20,26,22, 0,19,
+		17, 0, 0, 0,24,27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,24,27, 0, 0, 0,19,
+		32,25,23, 0,24,27, 0,20,23, 0,20,25,25,25,25,25,25,23, 0,20,23, 0,24,27, 0,20,25,34,
+		33,26,22, 0,21,22, 0,24,27, 0,21,26,26,23,20,26,26,22, 0,24,27, 0,21,22, 0,21,26,35,
+		17, 0, 0, 0, 0, 0, 0,24,27, 0, 0, 0, 0,24,27, 0, 0, 0, 0,24,27, 0, 0, 0, 0, 0, 0,19,
+		17, 0,20,25,25,25,25,22,21,25,25,23, 0,24,27, 0,20,25,25,22,21,25,25,25,25,23, 0,19,
+		17, 0,21,26,26,26,26,26,26,26,26,22, 0,21,22, 0,21,26,26,26,26,26,26,26,26,22, 0,19,
+		17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,19,
+		28,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,31,
+	};
+
+	Map map;
+	map.load("Textures/mapspritesheet.png", sf::Vector2u(8, 8), level, 28, 31);
+
+
+	sf::RenderWindow window(sf::VideoMode(448, 496), "Pacman!");
+	window.setFramerateLimit(144);
+	Player player(15.0f, sf::Vector2f(248.0f, 150.0f));
 	sf::Clock clock;
+
 	while (window.isOpen())
 	{
 		sf::Time deltaTime = clock.restart();
@@ -69,19 +63,13 @@ int main()
 				window.close();
 			if (event.type == sf::Event::KeyPressed)
 			{
-				if (event.key.code == sf::Keyboard::Up)
-					player.direction = UP;
-				else if (event.key.code == sf::Keyboard::Down)
-					player.direction = DOWN;
-				else if (event.key.code == sf::Keyboard::Left)
-					player.direction = LEFT;
-				else if (event.key.code == sf::Keyboard::Right)
-					player.direction = RIGHT;
+				player.processEvents(event);
 			}
 		}
-		std::cout << deltaTime.asSeconds() << std::endl;
 		player.update(deltaTime);
+
 		window.clear();
+		window.draw(map);
 		window.draw(player);
 		window.display();
 	}
