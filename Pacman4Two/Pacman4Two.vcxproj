@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="collider.cpp" />
     <ClCompile Include="collisionManager.cpp" />
+    <ClCompile Include="intersection.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="player.cpp" />
@@ -31,9 +32,11 @@
     <ClInclude Include="collider.h" />
     <ClInclude Include="CollisionComponent.h" />
     <ClInclude Include="collisionManager.h" />
+    <ClInclude Include="intersection.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="playerCollider.h" />
+    <ClInclude Include="sharedEnumerations.h" />
     <ClInclude Include="staticCollider.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

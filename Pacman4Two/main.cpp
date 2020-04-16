@@ -4,9 +4,15 @@
 #include "player.h"
 #include "map.h"
 #include "collisionManager.h"
-#include "collider.h";
-#include <vector>;
+#include "collider.h"
+#include <vector>
+#include "intersection.h"
+#include <math.h>
+const int mapWidth = 28;
+const int mapHeight = 31;
 
+Intersection* GetIntersectionAt(Intersection** intersections, int x, int y);
+Intersection* GetIntersectionAt(Intersection** intersections, sf::Vector2i location);
 
 
 int main()
@@ -57,7 +63,7 @@ int main()
 	e.g. 5  - means we can go up and left
 		 15 - means we can go i every direction
 	*/
-	const int intersections[] =
+	const int intersectionsArray[] =
 	{
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0,10, 0, 0, 0, 0,14, 0, 0, 0, 0, 0, 6, 0, 0,10, 0, 0, 0, 0, 0,14, 0, 0, 0, 0, 6, 0,
@@ -76,39 +82,109 @@ int main()
 		 0, 0, 0, 0, 0, 0,15, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0,11, 0, 0,15, 0, 0, 0, 0, 0, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0,11, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0,10, 0, 0, 0, 0,15, 0, 0,13, 0, 0, 6, 0, 0,10, 0, 0,13, 0, 0,15, 0, 0, 0, 0, 6, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		 0, 9, 0, 6, 0, 0,11, 0, 0,14, 0, 0,13, 0, 0,13, 0, 0,14, 0, 0, 7, 0, 0, 0, 0, 5, 0,
+		 0, 9, 0, 6, 0, 0,11, 0, 0,14, 0, 0,13, 0, 0,13, 0, 0,14, 0, 0, 7, 0, 0,10, 0, 5, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		 0,10, 0,13, 0, 0, 5, 0, 0, 9, 0, 0, 5, 0, 0,10, 0, 0, 5, 0, 0, 9, 0, 0,13, 0, 6, 0,
+		 0,10, 0,13, 0, 0, 5, 0, 0, 9, 0, 0, 6, 0, 0,10, 0, 0, 5, 0, 0, 9, 0, 0,13, 0, 6, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,13, 0, 0,13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	};
-	int sum[868];
-	for (size_t i = 0; i < 868;i++)
+	Intersection* intersections[mapWidth*mapHeight];
+	for (size_t i = 0; i < mapWidth*mapHeight; i++)
 	{
-		sum[i] = level[i] + intersections[i];
+		if (intersectionsArray[i])
+		{
+			Intersection* inter = new Intersection();
+			intersections[i] = inter;
+			inter->type = intersectionsArray[i];
+			inter->intersectionPosition = sf::Vector2i(i % mapWidth, i / mapWidth);
+		}
+		else
+		{
+			intersections[i] = nullptr;
+		}
 	}
+	for (size_t i = 0; i < mapWidth*mapHeight; i++)
+	{
+		if (intersections[i]!=nullptr)
+		{
+			int type = intersections[i]->type;
+			int column = i % mapWidth;
+			int row = i / mapWidth;
+
+
+			if ((type&1)==1)
+			{
+				for (size_t r = row - 1; r > 0; r--)
+				{
+					if (intersections[r*mapWidth+column]!=nullptr)
+					{
+						intersections[i]->neighbours.push_back(intersections[r*mapWidth + column]);
+						intersections[i]->directions.push_back(sf::Vector2f(0.0f, -1.0f));
+						break;
+					}
+				}
+			}
+			if ((type & 2) == 2)
+			{
+				for (size_t r = row + 1; r < mapHeight; r++)
+				{
+					if (intersections[r*mapWidth + column] != nullptr)
+					{
+						intersections[i]->neighbours.push_back(intersections[r*mapWidth + column]);
+						intersections[i]->directions.push_back(sf::Vector2f(0.0f, 1.0f));
+						break;
+					}
+				}
+			}
+			if ((type & 4) == 4)
+			{
+				for (size_t c = column - 1; c > 0; c--)
+				{
+					if (intersections[row*mapWidth + c] != nullptr)
+					{
+						intersections[i]->neighbours.push_back(intersections[row*mapWidth + c]);
+						intersections[i]->directions.push_back(sf::Vector2f(-1.0f, 0.0f));
+						break;
+					}
+				}
+			}
+			if ((type & 8) == 8)
+			{
+				for (size_t c = column + 1; c < mapWidth; c++)
+				{
+					if (intersections[row*mapWidth + c] != nullptr)
+					{
+						intersections[i]->neighbours.push_back(intersections[row*mapWidth + c]);
+						intersections[i]->directions.push_back(sf::Vector2f(1.0f, 0.0f));
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	Map map;
-	map.load("Textures/mapspritesheet.png", sf::Vector2u(8, 8), sum, 28, 31);
+	map.load("Textures/mapspritesheet.png", sf::Vector2u(8, 8), level, 28, 31);
 	
 	sf::RenderWindow window(sf::VideoMode(448, 496), "Pacman!");
 	window.setFramerateLimit(144);
-	Player player(15.0f, sf::Vector2f(348.0f, 150.0f),30.0f);
-	Player player1(15.0f, sf::Vector2f(248.0f, 150.0f),0.0f);
+	Player player(10.0f, sf::Vector2f(10.0f, 10.0f),30.0f);
+	player.currentIntersection = GetIntersectionAt(intersections, player.playerPositionToMapIndex());
 	sf::Clock clock;
 
 	while (window.isOpen())
 	{
 		sf::Time deltaTime = clock.restart();
-		std::cout << deltaTime.asMilliseconds() << std::endl;
+		//std::cout << deltaTime.asMilliseconds() << std::endl;
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -120,13 +196,25 @@ int main()
 			}
 		}
 		player.update(deltaTime);
-		player1.update(deltaTime);
 		CollisionManager::GetCollisionManager().Tick();
 		window.clear();
 		window.draw(map);
 		window.draw(player);
-		window.draw(player1);
 		window.display();
 	}
 	return 0;
+}
+
+
+Intersection* GetIntersectionAt(Intersection** intersections, int x, int y)
+{
+	if (x>mapWidth||y>mapHeight)
+		return nullptr;
+	int index = x + y * mapWidth;
+	return intersections[index];
+}
+
+Intersection* GetIntersectionAt(Intersection** intersections, sf::Vector2i location)
+{
+	return GetIntersectionAt(intersections, location.x, location.y);
 }

@@ -42,6 +42,9 @@
     <ClCompile Include="playerCollider.cpp">
       <Filter>Source Files\Private</Filter>
     </ClCompile>
+    <ClCompile Include="intersection.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="map.h">
@@ -63,6 +66,12 @@
       <Filter>Source Files\Public</Filter>
     </ClInclude>
     <ClInclude Include="playerCollider.h">
+      <Filter>Source Files\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="intersection.h">
+      <Filter>Source Files\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="sharedEnumerations.h">
       <Filter>Source Files\Public</Filter>
     </ClInclude>
   </ItemGroup>
