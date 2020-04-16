@@ -19,13 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="collider.cpp" />
+    <ClCompile Include="collisionManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="playerCollider.cpp" />
+    <ClCompile Include="staticCollider.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="collider.h" />
+    <ClInclude Include="CollisionComponent.h" />
+    <ClInclude Include="collisionManager.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="playerCollider.h" />
+    <ClInclude Include="staticCollider.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -1,13 +1,15 @@
 #include "player.h"
 
 
-Player::Player(float radius, sf::Vector2f startPosition)
+Player::Player(float radius, sf::Vector2f startPosition, float speed)
 {
 	playerSprite = sf::CircleShape(radius);
 	setPosition(startPosition);
 	playerSprite.setFillColor(sf::Color::Yellow);
-	direction = IDLE;
-	speed = 190.0f;
+	direction = LEFT;
+	this->speed = speed;
+	collider.bounds = playerSprite.getGlobalBounds();
+	collider.owner = this;
 }
 void Player::processEvents(sf::Event event)
 {
@@ -32,10 +34,11 @@ void Player::update(sf::Time deltaTime)
 		move(-1 * elapsed*speed, 0);
 	else if (direction == RIGHT)
 		move(1 * elapsed*speed, 0);
+	collider.bounds = playerSprite.getGlobalBounds();
+	playerSprite.setPosition(floorf(getPosition().x), floorf(getPosition().y));
 }
 
 void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-	states.transform.translate(floorf(getPosition().x), floorf(getPosition().y));
 	target.draw(playerSprite, states);
 }
