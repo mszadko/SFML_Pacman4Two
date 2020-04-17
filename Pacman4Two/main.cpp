@@ -177,7 +177,7 @@ int main()
 	
 	sf::RenderWindow window(sf::VideoMode(448, 496), "Pacman!");
 	window.setFramerateLimit(144);
-	Player player(10.0f, sf::Vector2f(10.0f, 10.0f),30.0f);
+	Player player(10.0f, sf::Vector2f(15.0f, 15.0f),90.0f);
 	player.currentIntersection = GetIntersectionAt(intersections, player.playerPositionToMapIndex());
 	sf::Clock clock;
 

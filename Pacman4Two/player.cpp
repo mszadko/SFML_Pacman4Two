@@ -17,37 +17,30 @@ void Player::processEvents(sf::Event event)
 {
 	if (event.key.code == sf::Keyboard::Up)
 	{
-		direction = UP;
-		MoveToIntersection(sf::Vector2f(0.0f, -1.0f));
+		ChangePosition(UP);
+
 	}
 	else if (event.key.code == sf::Keyboard::Down)
 	{
-		direction = DOWN;
-		MoveToIntersection(sf::Vector2f(0.0f, 1.0f));
+		ChangePosition(DOWN);
+
 	}	
 	else if (event.key.code == sf::Keyboard::Left)
 	{
-		direction = LEFT;
-		MoveToIntersection(sf::Vector2f(-1.0f, 0.0f));
+		ChangePosition(LEFT);
+
 	}
 	else if (event.key.code == sf::Keyboard::Right)
 	{
-		direction = RIGHT;
-		MoveToIntersection(sf::Vector2f(1.0f, 0.0f));
+		ChangePosition(RIGHT);
+
 	}
 }
 
 void Player::update(sf::Time deltaTime)
 {
 	float elapsed = deltaTime.asSeconds();
-	/*if (direction == UP)
-		move(0, -1 * elapsed*speed);
-	else if (direction == DOWN)
-		move(0, 1 * elapsed*speed);
-	else if (direction == LEFT)
-		move(-1 * elapsed*speed, 0);
-	else if (direction == RIGHT)
-		move(1 * elapsed*speed, 0);*/
+	Move(deltaTime);
 	collider.bounds = playerSprite.getGlobalBounds();
 	playerSprite.setPosition(FloorPosition(getPosition()));
 }
@@ -60,6 +53,52 @@ void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const
 sf::Vector2f Player::FloorPosition(sf::Vector2f position)
 {
 	return sf::Vector2f(floorf(position.x), floorf(position.y));
+}
+
+sf::Vector2f Player::DirectionToVector(Direction direction)
+{
+	switch (direction)
+	{
+	case UP:
+		return sf::Vector2f(0.0f, -1.0f);
+		break;
+	case DOWN:
+		return sf::Vector2f(0.0f, 1.0f);
+		break;
+	case LEFT:
+		return sf::Vector2f(-1.0f, 0.0f);
+		break;
+	case RIGHT:
+		return sf::Vector2f(1.0f, 0.0f);
+		break;
+	case IDLE:
+		return sf::Vector2f(0.0f, 0.0f);
+		break;
+	default:
+		break;
+	}
+}
+
+float Player::LengthFromPreviousNode(sf::Vector2f targetPosition)
+{
+	sf::Vector2f difference = targetPosition - sf::Vector2f(previousIntersection->intersectionPosition.x*16.0f, previousIntersection->intersectionPosition.y*16.0f);
+	return sqrt(pow(difference.x, 2) + pow(difference.y, 2));
+}
+
+bool Player::OvershotTarget()
+{
+	float distanceFromPreviousToTarget = LengthFromPreviousNode(sf::Vector2f(targetIntersection->intersectionPosition.x*16.0f, targetIntersection->intersectionPosition.y*16.0f));
+	float distanceFromPreviousToPlayer = LengthFromPreviousNode(getPosition());
+	return distanceFromPreviousToPlayer > distanceFromPreviousToTarget;
+}
+
+void Player::SwapDirection()
+{
+	direction = nextDirection;
+	nextDirection = IDLE;
+	Intersection* swap = targetIntersection;
+	targetIntersection = previousIntersection;
+	previousIntersection = swap;
 }
 
 sf::Vector2i Player::playerPositionToMapIndex()
@@ -94,3 +133,89 @@ void Player::MoveToIntersection(sf::Vector2f direction)
 		currentIntersection = moveToIntersection;
 	}
 }
+
+void Player::ChangePosition(Direction newDirection)
+{
+	if (newDirection!=direction)
+	{
+		nextDirection = newDirection;;
+	}
+	if (currentIntersection!=nullptr)
+	{
+		sf::Vector2f dir = DirectionToVector(newDirection);
+		Intersection* moveToIntersection = CanMove(dir);
+		if (moveToIntersection!=nullptr)
+		{
+			direction = newDirection;
+			targetIntersection = moveToIntersection;
+			previousIntersection = currentIntersection;
+			currentIntersection = nullptr;
+		}
+	}
+}
+
+void Player::Move(sf::Time deltaTime)
+{
+	if (direction != nextDirection)
+	{
+		switch (direction)
+		{
+		case UP:
+			if (nextDirection == DOWN)
+				SwapDirection();
+			break;
+		case DOWN:
+			if (nextDirection == UP)
+				SwapDirection();
+			break;
+		case LEFT:
+			if (nextDirection == RIGHT)
+				SwapDirection();
+			break;
+		case RIGHT:
+			if (nextDirection == LEFT)
+				SwapDirection();
+			break;
+		default:
+			break;
+		}
+	}
+	if (targetIntersection != currentIntersection &&targetIntersection!=nullptr)
+	{
+		if (OvershotTarget())
+		{
+			currentIntersection = targetIntersection;
+
+			setPosition(sf::Vector2f(currentIntersection->intersectionPosition.x*16.0f, currentIntersection->intersectionPosition.y*16.0f));
+
+			Intersection* moveToIntersection = CanMove(DirectionToVector(nextDirection));
+			if (moveToIntersection!=nullptr)
+			{
+				direction = nextDirection;
+			}
+			if (moveToIntersection==nullptr)
+			{
+				moveToIntersection = CanMove(DirectionToVector(direction));
+			}
+			if (moveToIntersection != nullptr)
+			{
+				targetIntersection = moveToIntersection;
+				previousIntersection = currentIntersection;
+				currentIntersection = nullptr;
+			}
+			else
+			{
+				direction = IDLE;
+			}
+		}
+		else
+		{
+			float elapsed = deltaTime.asSeconds();
+			sf::Vector2f moveOffset = DirectionToVector(direction)*elapsed*speed;
+			move(moveOffset);
+		}
+	}
+}
+
+
+
