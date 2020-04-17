@@ -79,7 +79,7 @@ int main()
 		 0, 0, 0, 0, 0, 0, 0, 0, 0,10, 0, 0,13,12,12,13, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 1, 1, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		 0, 0, 0, 0, 0, 0,15, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0,11, 0, 0,15, 0, 0, 0, 0, 0, 0,
+		12, 0, 0, 0, 0, 0,15, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0,11, 0, 0,15, 0, 0, 0, 0, 0,12,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 0, 0, 0, 0, 0, 0, 0, 0, 0,11, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -123,7 +123,7 @@ int main()
 
 			if ((type&1)==1)
 			{
-				for (size_t r = row - 1; r > 0; r--)
+				for (int r = row - 1; r >= 0; r--)
 				{
 					if (intersections[r*mapWidth+column]!=nullptr)
 					{
@@ -135,7 +135,7 @@ int main()
 			}
 			if ((type & 2) == 2)
 			{
-				for (size_t r = row + 1; r < mapHeight; r++)
+				for (size_t r = row + 1; r <= mapHeight; r++)
 				{
 					if (intersections[r*mapWidth + column] != nullptr)
 					{
@@ -147,7 +147,7 @@ int main()
 			}
 			if ((type & 4) == 4)
 			{
-				for (size_t c = column - 1; c > 0; c--)
+				for (int c = column - 1; c >= 0; c--)
 				{
 					if (intersections[row*mapWidth + c] != nullptr)
 					{
@@ -171,13 +171,17 @@ int main()
 			}
 		}
 	}
-
+	//add portal intersection connections
+	intersections[392]->neighbours.push_back(intersections[419]);
+	intersections[392]->directions.push_back(sf::Vector2f(-1.0f, 0.0f));
+	intersections[419]->neighbours.push_back(intersections[392]);
+	intersections[419]->directions.push_back(sf::Vector2f(1.0f, 0.0f));
 	Map map;
 	map.load("Textures/mapspritesheet.png", sf::Vector2u(8, 8), level, 28, 31);
 	
 	sf::RenderWindow window(sf::VideoMode(448, 496), "Pacman!");
 	window.setFramerateLimit(144);
-	Player player(10.0f, sf::Vector2f(15.0f, 15.0f),90.0f);
+	Player player(10.0f, sf::Vector2f(16.0f, 16.0f),90.0f);
 	player.currentIntersection = GetIntersectionAt(intersections, player.playerPositionToMapIndex());
 	sf::Clock clock;
 
