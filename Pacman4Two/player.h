@@ -1,6 +1,5 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "playerCollider.h"
 #include "intersection.h"
 
 enum Direction
@@ -27,7 +26,6 @@ public:
 	void MoveToIntersection(sf::Vector2f direction);
 	void ChangePosition(Direction newDirection);
 	void Move(sf::Time deltaTime);
-	void ConsumeFood(int*food);
 private:
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 

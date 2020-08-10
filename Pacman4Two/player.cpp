@@ -98,18 +98,7 @@ void Player::SwapDirection()
 	previousIntersection = swap;
 }
 
-void Player::ConsumeFood(int * food)
-{
-	sf::Vector2i playerIndexes = playerPositionToMapIndex();
-	int index = playerIndexes.x + playerIndexes.y * 28;
-	if (index<31*28)
-	{
-		if (food[index]==3)
-		{
-			food[index] = 0;
-		}
-	}
-}
+
 
 sf::Vector2i Player::playerPositionToMapIndex()
 {

@@ -21,12 +21,12 @@
   <ItemGroup>
     <ClCompile Include="intersection.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="map.cpp" />
+    <ClCompile Include="level.cpp" />
     <ClCompile Include="player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="intersection.h" />
-    <ClInclude Include="map.h" />
+    <ClInclude Include="level.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="sharedEnumerations.h" />
   </ItemGroup>
