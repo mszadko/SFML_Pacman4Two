@@ -30,18 +30,6 @@
     <ClCompile Include="player.cpp">
       <Filter>Source Files\Private</Filter>
     </ClCompile>
-    <ClCompile Include="collider.cpp">
-      <Filter>Source Files\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="staticCollider.cpp">
-      <Filter>Source Files\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="collisionManager.cpp">
-      <Filter>Source Files\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="playerCollider.cpp">
-      <Filter>Source Files\Private</Filter>
-    </ClCompile>
     <ClCompile Include="intersection.cpp">
       <Filter>Source Files\Private</Filter>
     </ClCompile>
@@ -51,21 +39,6 @@
       <Filter>Source Files\Public</Filter>
     </ClInclude>
     <ClInclude Include="player.h">
-      <Filter>Source Files\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="CollisionComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="collider.h">
-      <Filter>Source Files\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="staticCollider.h">
-      <Filter>Source Files\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="collisionManager.h">
-      <Filter>Source Files\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="playerCollider.h">
       <Filter>Source Files\Public</Filter>
     </ClInclude>
     <ClInclude Include="intersection.h">

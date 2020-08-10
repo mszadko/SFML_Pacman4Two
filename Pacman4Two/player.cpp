@@ -10,8 +10,6 @@ Player::Player(float radius, sf::Vector2f startPosition, float speed)
 	playerSprite.setPosition(FloorPosition(startPosition));
 	direction = IDLE;// LEFT;
 	this->speed = speed;
-	collider.bounds = playerSprite.getGlobalBounds();
-	collider.owner = this;
 }
 void Player::processEvents(sf::Event event)
 {
@@ -41,7 +39,6 @@ void Player::update(sf::Time deltaTime)
 {
 	float elapsed = deltaTime.asSeconds();
 	Move(deltaTime);
-	collider.bounds = playerSprite.getGlobalBounds();
 	playerSprite.setPosition(FloorPosition(getPosition()));
 }
 
@@ -99,6 +96,19 @@ void Player::SwapDirection()
 	Intersection* swap = targetIntersection;
 	targetIntersection = previousIntersection;
 	previousIntersection = swap;
+}
+
+void Player::ConsumeFood(int * food)
+{
+	sf::Vector2i playerIndexes = playerPositionToMapIndex();
+	int index = playerIndexes.x + playerIndexes.y * 28;
+	if (index<31*28)
+	{
+		if (food[index]==3)
+		{
+			food[index] = 0;
+		}
+	}
 }
 
 sf::Vector2i Player::playerPositionToMapIndex()

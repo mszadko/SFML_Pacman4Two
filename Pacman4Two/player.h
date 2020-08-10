@@ -26,15 +26,16 @@ public:
 	Intersection* CanMove(sf::Vector2f direction);
 	void MoveToIntersection(sf::Vector2f direction);
 	void ChangePosition(Direction newDirection);
-	void Move(sf::Time deltaTime);;
+	void Move(sf::Time deltaTime);
+	void ConsumeFood(int*food);
 private:
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 
 	float speed;
-	PlayerCollider collider;
 	sf::Vector2f FloorPosition(sf::Vector2f position);
 	sf::Vector2f DirectionToVector(Direction direction);
 	float LengthFromPreviousNode(sf::Vector2f targetPosition);
 	bool OvershotTarget();
 	void SwapDirection();
+	
 };
