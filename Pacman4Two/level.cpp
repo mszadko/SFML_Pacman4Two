@@ -1,5 +1,7 @@
 #include "level.h"
 #include "intersection.h"
+#include "player.h"
+#include <iostream>
 
 Level::~Level()
 {
@@ -21,6 +23,7 @@ bool Level::load(const std::string& tileset, sf::Vector2u tileSize, unsigned int
 	if (!m_tileset.loadFromFile(tileset))
 		return false;
 	
+	//this is really redundant. 
 	recalculateSum();
 	processIntersectionArray();
 
@@ -162,13 +165,17 @@ void Level::recalculateSum()
 	}
 }
 
-void Level::ConsumeFood(int index)
+bool Level::ConsumeFood(sf::Vector2i location,Player player)
 {
-	if (index < mapWidth*mapHeight)
+	if (location.x >= 0 &&location.x<=mapWidth&& location.y >= 0 &&location.y<=mapHeight )
 	{
+		int index = location.x + location.y*mapWidth;
 		if (foodArray[index] == 3)
 		{
+			std::cout << "Player is at  " << player.getPosition().x << "  ,  " << player.getPosition().y << std::endl;
 			foodArray[index] = 0;
+			return true;
 		}
-	}
+	}	
+	return false;
 }

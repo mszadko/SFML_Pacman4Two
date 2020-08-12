@@ -22,7 +22,7 @@ int main()
 	while (window.isOpen())
 	{
 		sf::Time deltaTime = clock.restart();
-		std::cout << deltaTime.asMilliseconds() << std::endl;
+		//std::cout << deltaTime.asMilliseconds() << std::endl;
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -34,9 +34,10 @@ int main()
 			}
 		}
 		player.update(deltaTime);
-		sf::Vector2i playerIndexes = player.playerPositionToMapIndex();
-		int index = playerIndexes.x + playerIndexes.y * 28;
-		level.ConsumeFood(index);
+		
+		level.ConsumeFood(player.playerPositionToMapIndex(),player);
+
+		
 		window.clear();
 		window.draw(level);
 		window.draw(player);

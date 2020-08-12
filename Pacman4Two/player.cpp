@@ -103,7 +103,7 @@ void Player::SwapDirection()
 sf::Vector2i Player::playerPositionToMapIndex()
 {
 	sf::Vector2f playerPos = playerSprite.getPosition();
-	return sf::Vector2i(((int)playerPos.x) / 16, ((int)playerPos.y) / 16);
+	return sf::Vector2i((int)roundf(playerPos.x / 16.0f), (int)roundf(playerPos.y / 16.0f));
 }
 
 Intersection * Player::CanMove(sf::Vector2f direction)
@@ -210,7 +210,6 @@ void Player::Move(sf::Time deltaTime)
 		else
 		{
 			float elapsed = deltaTime.asSeconds();
-			std::cout << playerPositionToMapIndex().x << std::endl;
 			float speedMultipler = (playerPositionToMapIndex().x > 28 || playerPositionToMapIndex().x < 0) ? 40.0f : 1.0f;
 			sf::Vector2f moveOffset = DirectionToVector(direction)*elapsed*speed*speedMultipler;
 			move(moveOffset);
