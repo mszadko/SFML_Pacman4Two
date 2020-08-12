@@ -13,7 +13,7 @@ public:
 	void recalculateSum();
 	Intersection*  GetIntersectionAt(int x, int y);
 	Intersection* GetIntersectionAt(sf::Vector2i location);
-	bool ConsumeFood(sf::Vector2i location,class Player player);
+	bool ConsumeFood(sf::Vector2i location);
 private:
 	static const int mapWidth = 28;
 	static const int mapHeight = 31;

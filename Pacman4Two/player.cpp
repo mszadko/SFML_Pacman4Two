@@ -2,17 +2,23 @@
 #include <iostream>
 #include <math.h>
 
-Player::Player(float radius, sf::Vector2f startPosition, float speed)
+Player::Player(sf::Vector2f startPosition, float speed)
 {
 	setPosition(startPosition);
-	playerSprite = sf::CircleShape(radius);
-	playerSprite.setFillColor(sf::Color::Yellow);
-	playerSprite.setPosition(FloorPosition(startPosition));
+	tileset.loadFromFile("Textures/pacmanspritesheet.png");
+	playerSprite.setTexture(tileset);
+	playerSprite.setTextureRect(sf::IntRect(0, 0, 16, 16));
+	playerSprite.setScale(sf::Vector2f(1.5f, 1.5f));
+	playerSprite.setPosition(CalculateSpritePosition(startPosition));
 	direction = IDLE;// LEFT;
 	this->speed = speed;
+	
+
 }
 void Player::processEvents(sf::Event event)
 {
+	if (bIsDead)
+		return;
 	if (event.key.code == sf::Keyboard::Up)
 	{
 		ChangePosition(UP);
@@ -31,7 +37,10 @@ void Player::processEvents(sf::Event event)
 	else if (event.key.code == sf::Keyboard::Right)
 	{
 		ChangePosition(RIGHT);
-
+	}
+	else if (event.key.code ==sf::Keyboard::Space)
+	{
+		Die();
 	}
 }
 
@@ -39,7 +48,8 @@ void Player::update(sf::Time deltaTime)
 {
 	float elapsed = deltaTime.asSeconds();
 	Move(deltaTime);
-	playerSprite.setPosition(FloorPosition(getPosition()));
+	playerSprite.setPosition(CalculateSpritePosition(getPosition()));
+	UpdateAnimation(deltaTime);
 }
 
 void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -47,9 +57,9 @@ void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	target.draw(playerSprite, states);
 }
 
-sf::Vector2f Player::FloorPosition(sf::Vector2f position)
+sf::Vector2f Player::CalculateSpritePosition(sf::Vector2f position)
 {
-	return sf::Vector2f(floorf(position.x), floorf(position.y));
+	return sf::Vector2f(floorf(position.x-4), floorf(position.y-4));
 }
 
 sf::Vector2f Player::DirectionToVector(Direction direction)
@@ -96,6 +106,75 @@ void Player::SwapDirection()
 	Intersection* swap = targetIntersection;
 	targetIntersection = previousIntersection;
 	previousIntersection = swap;
+}
+
+void Player::UpdateAnimation(sf::Time deltaTime)
+{
+	static float elapsed = 0.0f;
+	static int animationFrame = 0;
+	static sf::IntRect MovingRightFrames[3]
+	{
+		sf::IntRect(0,0,16,16),
+		sf::IntRect(16,0,16,16),
+		sf::IntRect(32,0,16,16)
+	};
+	static sf::IntRect MovingLeftFrames[3]
+	{
+		sf::IntRect(0,0,16,16),
+		sf::IntRect(48,0,16,16),
+		sf::IntRect(0,16,16,16)
+	};
+	static sf::IntRect MovingUpFrames[3]
+	{
+		sf::IntRect(0,0,16,16),
+		sf::IntRect(16,16,16,16),
+		sf::IntRect(32,16,16,16)
+	};
+	static sf::IntRect MovingDownFrames[3]
+	{
+		sf::IntRect(0,0,16,16),
+		sf::IntRect(48,16,16,16),
+		sf::IntRect(0,32,16,16)
+	};
+	elapsed += deltaTime.asMilliseconds();
+	if (elapsed>100.0f)
+	{
+		elapsed = 0.0f;
+		if (direction!=IDLE)
+		{
+			animationFrame = (animationFrame + 1) % 3;
+			sf::IntRect* AnimationFramesToUse=nullptr;
+			switch (direction)
+			{
+			case UP:
+				AnimationFramesToUse = MovingUpFrames;
+				break;
+			case DOWN:
+				AnimationFramesToUse = MovingDownFrames;
+				break;
+			case LEFT:
+				AnimationFramesToUse = MovingLeftFrames;
+				break;
+			case RIGHT:
+				AnimationFramesToUse = MovingRightFrames;
+				break;
+			case IDLE:
+				break;
+			default:
+				break;
+			}
+			if (AnimationFramesToUse)
+			{
+				playerSprite.setTextureRect(AnimationFramesToUse[animationFrame]);
+			}
+		}
+	}
+}
+
+void Player::Die()
+{
+	bIsDead = true;
+	direction = IDLE;
 }
 
 

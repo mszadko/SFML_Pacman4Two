@@ -15,7 +15,7 @@ int main()
 	
 	sf::RenderWindow window(sf::VideoMode(448, 496), "Pacman!");
 	window.setFramerateLimit(144);
-	Player player(10.0f, sf::Vector2f(16.0f, 16.0f),90.0f);
+	Player player(sf::Vector2f(16.0f, 16.0f),90.0f);
 	player.currentIntersection = level.GetIntersectionAt(player.playerPositionToMapIndex());
 	sf::Clock clock;
 
@@ -35,7 +35,7 @@ int main()
 		}
 		player.update(deltaTime);
 		
-		level.ConsumeFood(player.playerPositionToMapIndex(),player);
+		level.ConsumeFood(player.playerPositionToMapIndex());
 
 		
 		window.clear();
