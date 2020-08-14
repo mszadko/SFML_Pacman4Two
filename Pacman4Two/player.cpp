@@ -13,8 +13,53 @@ Player::Player(sf::Vector2f startPosition, float speed)
 	direction = IDLE;// LEFT;
 	this->speed = speed;
 	
+	Animation moveUpAnim = Animation(3, 2, true, &playerSprite,
+		{
+		sf::IntRect(0,0,16,16),
+		sf::IntRect(16,16,16,16),
+		sf::IntRect(32,16,16,16)
+		});
+	Animation moveDownAnim = Animation(3, 100, true, &playerSprite,
+		{
+		sf::IntRect(0,0,16,16),
+		sf::IntRect(48,16,16,16),
+		sf::IntRect(0,32,16,16)
+		});
+	Animation moveLeftAnim = Animation(3, 100, true, &playerSprite,
+		{
+		sf::IntRect(0,0,16,16),
+		sf::IntRect(48,0,16,16),
+		sf::IntRect(0,16,16,16)
+		});
+	Animation moveRightAnim = Animation(3, 100, true, &playerSprite,
+		{
+		sf::IntRect(0,0,16,16),
+		sf::IntRect(16,0,16,16),
+		sf::IntRect(32,0,16,16)
+		});
+	Animation deathAnim = Animation(12, 50, false, &playerSprite,
+		{
+		sf::IntRect( 0, 0,16,16),
+		sf::IntRect(16,32,16,16),
+		sf::IntRect(32,32,16,16),
+		sf::IntRect(48,32,16,16),
+		sf::IntRect( 0,48,16,16),
+		sf::IntRect(16,48,16,16),
+		sf::IntRect(32,48,16,16),
+		sf::IntRect(48,48,16,16),
+		sf::IntRect( 0,64,16,16),
+		sf::IntRect(16,64,16,16),
+		sf::IntRect(32,64,16,16),
+		sf::IntRect(48,64,16,16),
+		});
 
+	animStateMachine.AddState("UP", moveUpAnim);
+	animStateMachine.AddState("DOWN", moveDownAnim);
+	animStateMachine.AddState("LEFT", moveLeftAnim);
+	animStateMachine.AddState("RIGHT", moveRightAnim);
+	animStateMachine.AddState("DEATH", deathAnim);
 }
+
 void Player::processEvents(sf::Event event)
 {
 	if (bIsDead)
@@ -79,9 +124,8 @@ sf::Vector2f Player::DirectionToVector(Direction direction)
 		return sf::Vector2f(1.0f, 0.0f);
 		break;
 	case IDLE:
-		return sf::Vector2f(0.0f, 0.0f);
-		break;
 	default:
+		return sf::Vector2f(0.0f, 0.0f);
 		break;
 	}
 }
@@ -110,64 +154,40 @@ void Player::SwapDirection()
 
 void Player::UpdateAnimation(sf::Time deltaTime)
 {
-	static float elapsed = 0.0f;
-	static int animationFrame = 0;
-	static sf::IntRect MovingRightFrames[3]
+	static Direction currentAnimDirection = direction;
+	static bool bIsAlreadyDead = bIsDead;
+
+	if (currentAnimDirection!=direction&&!bIsDead)
 	{
-		sf::IntRect(0,0,16,16),
-		sf::IntRect(16,0,16,16),
-		sf::IntRect(32,0,16,16)
-	};
-	static sf::IntRect MovingLeftFrames[3]
-	{
-		sf::IntRect(0,0,16,16),
-		sf::IntRect(48,0,16,16),
-		sf::IntRect(0,16,16,16)
-	};
-	static sf::IntRect MovingUpFrames[3]
-	{
-		sf::IntRect(0,0,16,16),
-		sf::IntRect(16,16,16,16),
-		sf::IntRect(32,16,16,16)
-	};
-	static sf::IntRect MovingDownFrames[3]
-	{
-		sf::IntRect(0,0,16,16),
-		sf::IntRect(48,16,16,16),
-		sf::IntRect(0,32,16,16)
-	};
-	elapsed += deltaTime.asMilliseconds();
-	if (elapsed>100.0f)
-	{
-		elapsed = 0.0f;
-		if (direction!=IDLE)
+		currentAnimDirection = direction;
+		switch (direction)
 		{
-			animationFrame = (animationFrame + 1) % 3;
-			sf::IntRect* AnimationFramesToUse=nullptr;
-			switch (direction)
-			{
-			case UP:
-				AnimationFramesToUse = MovingUpFrames;
-				break;
-			case DOWN:
-				AnimationFramesToUse = MovingDownFrames;
-				break;
-			case LEFT:
-				AnimationFramesToUse = MovingLeftFrames;
-				break;
-			case RIGHT:
-				AnimationFramesToUse = MovingRightFrames;
-				break;
-			case IDLE:
-				break;
-			default:
-				break;
-			}
-			if (AnimationFramesToUse)
-			{
-				playerSprite.setTextureRect(AnimationFramesToUse[animationFrame]);
-			}
-		}
+		case UP:
+			animStateMachine.PlayState("UP");
+			break;
+		case DOWN:
+			animStateMachine.PlayState("DOWN");
+			break;
+		case LEFT:
+			animStateMachine.PlayState("LEFT");
+			break;
+		case RIGHT:
+			animStateMachine.PlayState("RIGHT");
+			break;
+		case IDLE:
+			break;
+		default:
+			break;
+		}	
+	}
+	if (bIsDead && !bIsAlreadyDead)
+	{
+		bIsAlreadyDead = bIsDead;
+		animStateMachine.PlayState("DEATH");
+	}
+	if (direction != IDLE || bIsDead)
+	{
+		animStateMachine.Update(deltaTime);
 	}
 }
 

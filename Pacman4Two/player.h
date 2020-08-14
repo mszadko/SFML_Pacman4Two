@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "intersection.h"
-
+#include "animationStateMachine.h"
 enum Direction
 {
 	UP,
@@ -19,6 +19,7 @@ public:
 	void update(sf::Time deltaTime);
 	sf::Sprite playerSprite;
 	sf::Texture tileset;
+	AnimationStateMachine animStateMachine;
 	Direction direction,nextDirection;
 	Intersection* currentIntersection, *previousIntersection, *targetIntersection;
 	sf::Vector2i playerPositionToMapIndex();

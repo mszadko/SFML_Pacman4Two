@@ -33,6 +33,12 @@
     <ClCompile Include="level.cpp">
       <Filter>Source Files\Private</Filter>
     </ClCompile>
+    <ClCompile Include="animation.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="animationStateMachine.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="player.h">
@@ -45,6 +51,12 @@
       <Filter>Source Files\Public</Filter>
     </ClInclude>
     <ClInclude Include="level.h">
+      <Filter>Source Files\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="animation.h">
+      <Filter>Source Files\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="animationStateMachine.h">
       <Filter>Source Files\Public</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,12 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="animation.cpp" />
+    <ClCompile Include="animationStateMachine.cpp" />
     <ClCompile Include="intersection.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="level.cpp" />
     <ClCompile Include="player.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="animation.h" />
+    <ClInclude Include="animationStateMachine.h" />
     <ClInclude Include="intersection.h" />
     <ClInclude Include="level.h" />
     <ClInclude Include="player.h" />
