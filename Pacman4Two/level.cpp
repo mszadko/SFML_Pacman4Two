@@ -93,7 +93,7 @@ void Level::processIntersectionArray()
 					if (intersections[r*mapWidth + column] != nullptr)
 					{
 						intersections[i]->neighbours.push_back(intersections[r*mapWidth + column]);
-						intersections[i]->directions.push_back(sf::Vector2f(0.0f, -1.0f));
+						intersections[i]->directions.push_back(Direction::UP);
 						break;
 					}
 				}
@@ -105,7 +105,7 @@ void Level::processIntersectionArray()
 					if (intersections[r*mapWidth + column] != nullptr)
 					{
 						intersections[i]->neighbours.push_back(intersections[r*mapWidth + column]);
-						intersections[i]->directions.push_back(sf::Vector2f(0.0f, 1.0f));
+						intersections[i]->directions.push_back(Direction::DOWN);
 						break;
 					}
 				}
@@ -117,7 +117,7 @@ void Level::processIntersectionArray()
 					if (intersections[row*mapWidth + c] != nullptr)
 					{
 						intersections[i]->neighbours.push_back(intersections[row*mapWidth + c]);
-						intersections[i]->directions.push_back(sf::Vector2f(-1.0f, 0.0f));
+						intersections[i]->directions.push_back(Direction::LEFT);
 						break;
 					}
 				}
@@ -129,7 +129,7 @@ void Level::processIntersectionArray()
 					if (intersections[row*mapWidth + c] != nullptr)
 					{
 						intersections[i]->neighbours.push_back(intersections[row*mapWidth + c]);
-						intersections[i]->directions.push_back(sf::Vector2f(1.0f, 0.0f));
+						intersections[i]->directions.push_back(Direction::RIGHT);
 						break;
 					}
 				}
@@ -138,9 +138,9 @@ void Level::processIntersectionArray()
 	}
 	//add portal intersection connections
 	intersections[392]->neighbours.push_back(intersections[419]);
-	intersections[392]->directions.push_back(sf::Vector2f(-1.0f, 0.0f));
+	intersections[392]->directions.push_back(Direction::LEFT);
 	intersections[419]->neighbours.push_back(intersections[392]);
-	intersections[419]->directions.push_back(sf::Vector2f(1.0f, 0.0f));
+	intersections[419]->directions.push_back(Direction::RIGHT);
 }
 
 Intersection* Level::GetIntersectionAt(int x, int y)

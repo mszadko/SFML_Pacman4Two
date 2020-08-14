@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <array>
-
+#include "sharedEnumerations.h"
 class Intersection;
 
 class Level : public sf::Drawable
@@ -15,8 +15,6 @@ public:
 	Intersection* GetIntersectionAt(sf::Vector2i location);
 	bool ConsumeFood(sf::Vector2i location);
 private:
-	static const int mapWidth = 28;
-	static const int mapHeight = 31;
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 	sf::Texture m_tileset;
 	sf::VertexArray m_vertices;

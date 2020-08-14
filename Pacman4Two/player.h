@@ -2,14 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "intersection.h"
 #include "animationStateMachine.h"
-enum Direction
-{
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT,
-	IDLE
-};
+#include "sharedEnumerations.h"
 
 class Player : public sf::Transformable, public sf::Drawable
 {
@@ -23,9 +16,8 @@ public:
 	Direction direction,nextDirection;
 	Intersection* currentIntersection, *previousIntersection, *targetIntersection;
 	sf::Vector2i playerPositionToMapIndex();
-	Intersection* CanMove(sf::Vector2f direction);
-	void MoveToIntersection(sf::Vector2f direction);
-	void ChangePosition(Direction newDirection);
+	Intersection* FindIntersectionInDirection(Direction direction);
+	void SetNextDirection(Direction newDirection);
 	void Move(sf::Time deltaTime);
 private:
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
