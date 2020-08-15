@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="animation.cpp" />
     <ClCompile Include="animationStateMachine.cpp" />
+    <ClCompile Include="gridWalker.cpp" />
     <ClCompile Include="intersection.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="level.cpp" />
@@ -29,6 +30,7 @@
   <ItemGroup>
     <ClInclude Include="animation.h" />
     <ClInclude Include="animationStateMachine.h" />
+    <ClInclude Include="gridWalker.h" />
     <ClInclude Include="intersection.h" />
     <ClInclude Include="level.h" />
     <ClInclude Include="player.h" />

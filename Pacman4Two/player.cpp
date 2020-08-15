@@ -2,7 +2,8 @@
 #include <iostream>
 #include <math.h>
 
-Player::Player(sf::Vector2f startPosition, float speed)
+Player::Player(sf::Vector2f startPosition, Intersection* currentIntersection, float speed)
+	: GridWalker(currentIntersection, speed)
 {
 	setPosition(startPosition);
 	tileset.loadFromFile("Textures/pacmanspritesheet.png");
@@ -10,8 +11,6 @@ Player::Player(sf::Vector2f startPosition, float speed)
 	playerSprite.setTextureRect(sf::IntRect(0, 0, tileSize, tileSize));
 	playerSprite.setScale(sf::Vector2f(1.5f, 1.5f));
 	playerSprite.setPosition(CalculateSpritePosition(startPosition));
-	direction = IDLE;// LEFT;
-	this->speed = speed;
 	
 	Animation moveUpAnim = Animation(3, 100, true, &playerSprite,
 		{
@@ -107,51 +106,6 @@ sf::Vector2f Player::CalculateSpritePosition(sf::Vector2f position)
 	return sf::Vector2f(floorf(position.x-4), floorf(position.y-4));
 }
 
-sf::Vector2f Player::DirectionToVector(Direction direction)
-{
-	switch (direction)
-	{
-	case UP:
-		return sf::Vector2f(0.0f, -1.0f);
-		break;
-	case DOWN:
-		return sf::Vector2f(0.0f, 1.0f);
-		break;
-	case LEFT:
-		return sf::Vector2f(-1.0f, 0.0f);
-		break;
-	case RIGHT:
-		return sf::Vector2f(1.0f, 0.0f);
-		break;
-	case IDLE:
-	default:
-		return sf::Vector2f(0.0f, 0.0f);
-		break;
-	}
-}
-
-float Player::LengthFromPreviousNode(sf::Vector2f targetPosition)
-{
-	sf::Vector2f difference = targetPosition - sf::Vector2f(previousIntersection->intersectionPosition.x*ftileSize, previousIntersection->intersectionPosition.y*ftileSize);
-	return sqrt(pow(difference.x, 2) + pow(difference.y, 2));
-}
-
-bool Player::OvershotTarget()
-{
-	float distanceFromPreviousToTarget = LengthFromPreviousNode(sf::Vector2f(targetIntersection->intersectionPosition.x*ftileSize, targetIntersection->intersectionPosition.y*ftileSize));
-	float distanceFromPreviousToPlayer = LengthFromPreviousNode(getPosition());
-	return distanceFromPreviousToPlayer > distanceFromPreviousToTarget;
-}
-
-void Player::SwapDirection()
-{
-	direction = nextDirection;
-	nextDirection = IDLE;
-	Intersection* swap = targetIntersection;
-	targetIntersection = previousIntersection;
-	previousIntersection = swap;
-}
-
 void Player::UpdateAnimation(sf::Time deltaTime)
 {
 	static Direction currentAnimDirection = direction;
@@ -197,123 +151,8 @@ void Player::Die()
 	direction = IDLE;
 }
 
-
-
-sf::Vector2i Player::playerPositionToMapIndex()
+bool Player::IsIntersectionValid(Intersection * intersectionToCheck)
 {
-	sf::Vector2f playerPos = playerSprite.getPosition();
-	return sf::Vector2i((int)roundf(playerPos.x / ftileSize), (int)roundf(playerPos.y / ftileSize));
+	return true;
 }
-
-Intersection * Player::FindIntersectionInDirection(Direction direction)
-{
-	Intersection* moveToNode = nullptr;
-	for (size_t i = 0; i < currentIntersection->directions.size(); i++)
-	{
-		if (direction==currentIntersection->directions[i])
-		{
-			moveToNode = currentIntersection->neighbours[i];
-			break;
-		}
-	}
-	return moveToNode;
-}
-
-
-void Player::SetNextDirection(Direction newDirection)
-{
-	if (newDirection!=direction)
-	{
-		nextDirection = newDirection;;
-	}
-	if (currentIntersection!=nullptr)
-	{
-		Intersection* moveToIntersection = FindIntersectionInDirection(newDirection);
-		if (moveToIntersection!=nullptr)
-		{
-			direction = nextDirection;
-			targetIntersection = moveToIntersection;
-			previousIntersection = currentIntersection;
-			currentIntersection = nullptr;
-		}
-	}
-	if (direction != nextDirection)
-	{
-		switch (direction)
-		{
-		case UP:
-			if (nextDirection == DOWN)
-				SwapDirection();
-			break;
-		case DOWN:
-			if (nextDirection == UP)
-				SwapDirection();
-			break;
-		case LEFT:
-			if (nextDirection == RIGHT)
-				SwapDirection();
-			break;
-		case RIGHT:
-			if (nextDirection == LEFT)
-				SwapDirection();
-			break;
-		default:
-			break;
-		}
-	}
-}
-
-void Player::Move(sf::Time deltaTime)
-{
-	if (targetIntersection != currentIntersection &&targetIntersection!=nullptr)
-	{
-		if (OvershotTarget())
-		{
-			currentIntersection = targetIntersection;
-
-			setPosition(sf::Vector2f(currentIntersection->intersectionPosition.x*ftileSize, currentIntersection->intersectionPosition.y*ftileSize));
-
-			Intersection* moveToIntersection = FindIntersectionInDirection(nextDirection);
-			if (moveToIntersection!=nullptr)
-			{
-				direction = nextDirection;
-			}
-			if (moveToIntersection==nullptr)
-			{
-				moveToIntersection = FindIntersectionInDirection(direction);
-			}
-			if (moveToIntersection != nullptr)
-			{
-				targetIntersection = moveToIntersection;
-				previousIntersection = currentIntersection;
-				currentIntersection = nullptr;
-			}
-			else
-			{
-				direction = IDLE;
-			}
-		}
-		else
-		{
-			sf::Vector2i playerPositionOnTileMap = playerPositionToMapIndex();
-
-			if (playerPositionOnTileMap.x>mapWidth)
-			{
-				setPosition(sf::Vector2f(-1.0f*ftileSize, playerPositionOnTileMap.y*ftileSize));
-			}
-			else if (playerPositionOnTileMap.x < 0)
-			{
-				setPosition(sf::Vector2f((mapWidth + 1)*ftileSize, playerPositionOnTileMap.y*ftileSize));
-			}
-			else
-			{
-				float elapsed = deltaTime.asSeconds();
-				sf::Vector2f moveOffset = DirectionToVector(direction)*elapsed*speed;
-				move(moveOffset);
-			}
-		}
-	}
-}
-
-
 
