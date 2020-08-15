@@ -8,9 +8,11 @@ Ghost::Ghost(sf::Vector2f startPosition, Intersection * currentIntersection, Gho
 {
 	this->type = type;
 	bIsOnPatrol = true;
-	patrolTime = 5000.0f;
-	chasingTime = 30000.0f;
+	bIsReturningToBase = false;
+	frightenedState = NOTFRIGHTENED;
 	milisecondsElapsedFromTargetSwitch = 0;
+	milisecondsElapsedDuringBeingFrightened = 0;
+	respawnLocation = sf::Vector2f(currentIntersection->intersectionPosition.x*ftileSize, currentIntersection->intersectionPosition.y*ftileSize);
 	switch (type)
 	{
 	case RED:
@@ -62,11 +64,11 @@ Ghost::Ghost(sf::Vector2f startPosition, Intersection * currentIntersection, Gho
 		sf::IntRect(2 * tileSize,tileSize * 4,tileSize,tileSize),
 		sf::IntRect(3 * tileSize,tileSize * 4,tileSize,tileSize)
 		});
-	Animation returnToBaseLeft = Animation(1, 60, false, &sprite,
+	Animation returnToBaseRight = Animation(1, 60, false, &sprite,
 		{
 		sf::IntRect(4 * tileSize,tileSize * 4,tileSize,tileSize),
 		});
-	Animation returnToBaseRight = Animation(1, 60, false, &sprite,
+	Animation returnToBaseLeft = Animation(1, 60, false, &sprite,
 		{
 		sf::IntRect(5 * tileSize,tileSize * 4,tileSize,tileSize),
 		});
@@ -87,7 +89,7 @@ Ghost::Ghost(sf::Vector2f startPosition, Intersection * currentIntersection, Gho
 	animStateMachine.AddState("RETURNUP", returnToBaseUp);
 	animStateMachine.AddState("RETURNDOWN", returnToBaseDown);
 	animStateMachine.AddState("RETURNLEFT", returnToBaseLeft);
-	animStateMachine.AddState("RETURNIGHT", returnToBaseRight);
+	animStateMachine.AddState("RETURNRIGHT", returnToBaseRight);
 	currentAnimDirection = IDLE;
 	SetNextDirection(DOWN);
 }
@@ -95,31 +97,53 @@ Ghost::Ghost(sf::Vector2f startPosition, Intersection * currentIntersection, Gho
 void Ghost::update(sf::Time deltaTime)
 {
 	milisecondsElapsedFromTargetSwitch += deltaTime.asMilliseconds();
+	if (frightenedState)
+	{
+		milisecondsElapsedDuringBeingFrightened += deltaTime.asMilliseconds();
+		UpdateFrightenedMode();
+	}
+		
 	AnimatedGridWalker::update(deltaTime);
 	Move(deltaTime);
 	sprite.setPosition(CalculateSpritePosition());
 	FindNextDirection();
-	SwitchTarget();
+	TogglePatrolMode();
 }
 
 void Ghost::UpdateAnimation(sf::Time deltaTime)
 {
-	if (currentAnimDirection != direction)
+	if (frightenedState)
+	{
+		currentAnimDirection = IDLE;
+		switch (frightenedState)
+		{
+		case FRIGHTENED:
+			animStateMachine.PlayState("RUNAWAY");
+			break;
+		case FRIGHTENEDENDING:
+			animStateMachine.PlayState("RUNAWAYFLASH");
+			break;
+		default:
+			break;
+		}
+	}
+	else if (currentAnimDirection != direction)
 	{
 		currentAnimDirection = direction;
+
 		switch (direction)
 		{
 		case UP:
-			animStateMachine.PlayState("CHASEUP");
+			animStateMachine.PlayState(bIsReturningToBase?"RETURNUP": "CHASEUP");
 			break;
 		case DOWN:
-			animStateMachine.PlayState("CHASEDOWN");
+			animStateMachine.PlayState(bIsReturningToBase ? "RETURNDOWN" : "CHASEDOWN");
 			break;
 		case LEFT:
-			animStateMachine.PlayState("CHASELEFT");
+			animStateMachine.PlayState(bIsReturningToBase ? "RETURNLEFT" : "CHASELEFT");
 			break;
 		case RIGHT:
-			animStateMachine.PlayState("CHASERIGHT");
+			animStateMachine.PlayState(bIsReturningToBase ? "RETURNRIGHT" : "CHASERIGHT");
 			break;
 		case IDLE:
 			break;
@@ -154,7 +178,8 @@ void Ghost::FindNextDirection()
 				}
 				else
 				{
-					sf::Vector2f targetPosition = bIsOnPatrol ? patrolPoint : player->getPosition();
+					sf::Vector2f targetPosition = (bIsOnPatrol||frightenedState) ? patrolPoint : player->getPosition();
+					targetPosition = bIsReturningToBase ? respawnLocation : targetPosition;
 					sf::Vector2f intersectionPos = sf::Vector2f(targetIntersection->neighbours[i]->intersectionPosition.x*ftileSize, targetIntersection->neighbours[i]->intersectionPosition.y*ftileSize);
 					sf::Vector2f difference = targetPosition - intersectionPos;
 					float dist = sqrt(pow(difference.x, 2) + pow(difference.y, 2));
@@ -162,8 +187,7 @@ void Ghost::FindNextDirection()
 					{
 						minimalDist = dist;
 						chosenIndex = i;
-					}
-					 
+					} 
 				}
 			}
 		}
@@ -171,7 +195,7 @@ void Ghost::FindNextDirection()
 	}
 }
 
-void Ghost::SwitchTarget()
+void Ghost::TogglePatrolMode()
 {
 	if (bIsOnPatrol)
 	{
@@ -190,3 +214,24 @@ void Ghost::SwitchTarget()
 		}
 	}
 }
+
+void Ghost::SwitchFrightenedMode(GhostFrightenedState NewIsFrightened)
+{
+	if (NewIsFrightened==NOTFRIGHTENED||NewIsFrightened==FRIGHTENED)
+	{
+		milisecondsElapsedDuringBeingFrightened = 0;
+	}
+	frightenedState = NewIsFrightened;
+}
+
+void Ghost::UpdateFrightenedMode()
+{
+	if (frightenedState)
+	{
+		if (milisecondsElapsedDuringBeingFrightened > frightenedTime + frightenedEndingTime)
+			SwitchFrightenedMode(NOTFRIGHTENED);
+		else if (milisecondsElapsedDuringBeingFrightened > frightenedTime)
+			SwitchFrightenedMode(FRIGHTENEDENDING);
+	}
+}
+

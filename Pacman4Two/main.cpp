@@ -8,7 +8,6 @@
 #include "intersection.h"
 #include <math.h>
 
-
 int main()
 {
 	Level level;

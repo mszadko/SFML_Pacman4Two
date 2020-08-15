@@ -8,7 +8,12 @@ enum GhostType
 	BLUE,
 	ORANGE
 };
-
+enum GhostFrightenedState
+{
+	NOTFRIGHTENED,
+	FRIGHTENED,
+	FRIGHTENEDENDING
+};
 class Player;
 
 class Ghost:public AnimatedGridWalker
@@ -18,18 +23,24 @@ public:
 	void update(sf::Time deltaTime);
 	GhostType type;
 	Player* player;
+	void SwitchFrightenedMode(GhostFrightenedState NewIsFrightened);
 protected:
 	virtual void UpdateAnimation(sf::Time deltaTime);
 	void FindNextDirection();
-	bool bIsFrightened;
-	bool bIsFlashing;
+	GhostFrightenedState frightenedState;
 	bool bIsReturningToBase;
 	bool bIsOnPatrol;
 	sf::Vector2f patrolPoint;
 private:
-	void SwitchTarget();
+	void TogglePatrolMode();
+	void UpdateFrightenedMode();
 	Direction currentAnimDirection;
-	float milisecondsElapsedFromTargetSwitch;
-	float patrolTime;
-	float chasingTime;
+	int milisecondsElapsedFromTargetSwitch;
+	int milisecondsElapsedDuringBeingFrightened;
+	sf::Vector2f respawnLocation;
+	const int patrolTime = 5000;
+	const int chasingTime = 30000;
+	const int frightenedTime = 6500;
+	const int frightenedEndingTime = 3000;
+	
 };
