@@ -3,53 +3,46 @@
 #include <math.h>
 
 Player::Player(sf::Vector2f startPosition, Intersection* currentIntersection, float speed)
-	: GridWalker(currentIntersection, speed)
+	: AnimatedGridWalker(startPosition,currentIntersection,"Textures/pacmanspritesheet.png", speed)
 {
-	setPosition(startPosition);
-	tileset.loadFromFile("Textures/pacmanspritesheet.png");
-	playerSprite.setTexture(tileset);
-	playerSprite.setTextureRect(sf::IntRect(0, 0, tileSize, tileSize));
-	playerSprite.setScale(sf::Vector2f(1.5f, 1.5f));
-	playerSprite.setPosition(CalculateSpritePosition(startPosition));
-	
-	Animation moveUpAnim = Animation(3, 100, true, &playerSprite,
+	Animation moveUpAnim = Animation(3, 60, true, &sprite,
 		{
-		sf::IntRect(0,0,16,16),
-		sf::IntRect(16,16,16,16),
-		sf::IntRect(32,16,16,16)
+		sf::IntRect( 0, 0,tileSize,tileSize),
+		sf::IntRect(16,16,tileSize,tileSize),
+		sf::IntRect(32,16,tileSize,tileSize)
 		});
-	Animation moveDownAnim = Animation(3, 100, true, &playerSprite,
+	Animation moveDownAnim = Animation(3, 60, true, &sprite,
 		{
-		sf::IntRect(0,0,16,16),
-		sf::IntRect(48,16,16,16),
-		sf::IntRect(0,32,16,16)
+		sf::IntRect( 0, 0,tileSize,tileSize),
+		sf::IntRect(48,16,tileSize,tileSize),
+		sf::IntRect( 0,32,tileSize,tileSize)
 		});
-	Animation moveLeftAnim = Animation(3, 100, true, &playerSprite,
+	Animation moveLeftAnim = Animation(3, 60, true, &sprite,
 		{
-		sf::IntRect(0,0,16,16),
-		sf::IntRect(48,0,16,16),
-		sf::IntRect(0,16,16,16)
+		sf::IntRect(0 , 0,tileSize,tileSize),
+		sf::IntRect(48, 0,tileSize,tileSize),
+		sf::IntRect( 0,16,tileSize,tileSize)
 		});
-	Animation moveRightAnim = Animation(3, 100, true, &playerSprite,
+	Animation moveRightAnim = Animation(3, 60, true, &sprite,
 		{
-		sf::IntRect(0,0,16,16),
-		sf::IntRect(16,0,16,16),
-		sf::IntRect(32,0,16,16)
+		sf::IntRect( 0, 0,tileSize,tileSize),
+		sf::IntRect(16, 0,tileSize,tileSize),
+		sf::IntRect(32, 0,tileSize,tileSize)
 		});
-	Animation deathAnim = Animation(12, 50, false, &playerSprite,
+	Animation deathAnim = Animation(12, 60, false, &sprite,
 		{
-		sf::IntRect( 0, 0,16,16),
-		sf::IntRect(16,32,16,16),
-		sf::IntRect(32,32,16,16),
-		sf::IntRect(48,32,16,16),
-		sf::IntRect( 0,48,16,16),
-		sf::IntRect(16,48,16,16),
-		sf::IntRect(32,48,16,16),
-		sf::IntRect(48,48,16,16),
-		sf::IntRect( 0,64,16,16),
-		sf::IntRect(16,64,16,16),
-		sf::IntRect(32,64,16,16),
-		sf::IntRect(48,64,16,16),
+		sf::IntRect( 0, 0,tileSize,tileSize),
+		sf::IntRect(16,32,tileSize,tileSize),
+		sf::IntRect(32,32,tileSize,tileSize),
+		sf::IntRect(48,32,tileSize,tileSize),
+		sf::IntRect( 0,48,tileSize,tileSize),
+		sf::IntRect(16,48,tileSize,tileSize),
+		sf::IntRect(32,48,tileSize,tileSize),
+		sf::IntRect(48,48,tileSize,tileSize),
+		sf::IntRect( 0,64,tileSize,tileSize),
+		sf::IntRect(16,64,tileSize,tileSize),
+		sf::IntRect(32,64,tileSize,tileSize),
+		sf::IntRect(48,64,tileSize,tileSize),
 		});
 
 	animStateMachine.AddState("UP", moveUpAnim);
@@ -57,6 +50,7 @@ Player::Player(sf::Vector2f startPosition, Intersection* currentIntersection, fl
 	animStateMachine.AddState("LEFT", moveLeftAnim);
 	animStateMachine.AddState("RIGHT", moveRightAnim);
 	animStateMachine.AddState("DEATH", deathAnim);
+	currentAnimDirection = IDLE;
 }
 
 void Player::processEvents(sf::Event event)
@@ -90,25 +84,14 @@ void Player::processEvents(sf::Event event)
 
 void Player::update(sf::Time deltaTime)
 {
+	AnimatedGridWalker::update(deltaTime);
 	float elapsed = deltaTime.asSeconds();
 	Move(deltaTime);
-	playerSprite.setPosition(CalculateSpritePosition(getPosition()));
-	UpdateAnimation(deltaTime);
-}
-
-void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const
-{
-	target.draw(playerSprite, states);
-}
-
-sf::Vector2f Player::CalculateSpritePosition(sf::Vector2f position)
-{
-	return sf::Vector2f(floorf(position.x-4), floorf(position.y-4));
+	sprite.setPosition(CalculateSpritePosition());
 }
 
 void Player::UpdateAnimation(sf::Time deltaTime)
 {
-	static Direction currentAnimDirection = direction;
 	static bool bIsAlreadyDead = bIsDead;
 
 	if (currentAnimDirection!=direction&&!bIsDead)

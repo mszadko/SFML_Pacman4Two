@@ -42,6 +42,12 @@
     <ClCompile Include="gridWalker.cpp">
       <Filter>Source Files\Private</Filter>
     </ClCompile>
+    <ClCompile Include="ghost.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="animatedGridWalker.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="player.h">
@@ -63,6 +69,12 @@
       <Filter>Source Files\Public</Filter>
     </ClInclude>
     <ClInclude Include="gridWalker.h">
+      <Filter>Source Files\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="ghost.h">
+      <Filter>Source Files\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="animatedGridWalker.h">
       <Filter>Source Files\Public</Filter>
     </ClInclude>
   </ItemGroup>

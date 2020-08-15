@@ -6,7 +6,6 @@ void AnimationStateMachine::Update(sf::Time deltaTime)
 {	
 	try
 	{
-
 		Animation& animAtCurrentState = stateMap.at(currentState);
 		animAtCurrentState.Update(deltaTime);
 	}

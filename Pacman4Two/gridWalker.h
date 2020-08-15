@@ -6,13 +6,15 @@ class Intersection;
 class GridWalker : public sf::Transformable
 {
 public:
-	GridWalker(Intersection* currentIntersection,float speed =100.0f);
+	GridWalker(sf::Vector2f startPosition,Intersection* currentIntersection,float speed = 100.0f);
 	void Move(sf::Time deltaTime);
 	void SetNextDirection(Direction newDirection);
 	sf::Vector2i PositionToMapCoord();
 protected:
 	virtual bool IsIntersectionValid(Intersection* intersectionToCheck);
 	Direction direction;
+	Intersection* currentIntersection, *previousIntersection, *targetIntersection;
+	Direction nextDirection;
 private:
 	Intersection* FindIntersectionInDirection(Direction direction);
 	void SwapDirection();
@@ -22,6 +24,6 @@ private:
 	sf::Vector2f DirectionToVector(Direction direction);
 
 	float speed;
-	Direction nextDirection;
-	Intersection* currentIntersection, *previousIntersection, *targetIntersection;
+	
+	
 };

@@ -2,11 +2,12 @@
 #include "intersection.h"
 #include <iostream>
 
-GridWalker::GridWalker(Intersection* currentIntersection,float speed)
+GridWalker::GridWalker(sf::Vector2f startPosition,Intersection* currentIntersection,float speed)
 {
+	setPosition(startPosition);
 	this->currentIntersection = currentIntersection;
-	direction = IDLE;// LEFT;
 	this->speed = speed;
+	direction = IDLE;
 }
 
 void GridWalker::Move(sf::Time deltaTime)
@@ -60,6 +61,7 @@ void GridWalker::Move(sf::Time deltaTime)
 		}
 	}
 }
+
 void GridWalker::SetNextDirection(Direction newDirection)
 {
 	if (newDirection != direction)
@@ -110,7 +112,6 @@ Intersection * GridWalker::FindIntersectionInDirection(Direction direction)
 	{
 		if (direction == currentIntersection->directions[i])
 		{
-			
 			moveToNode = currentIntersection->neighbours[i];
 			if (!IsIntersectionValid(moveToNode))
 				moveToNode = nullptr;

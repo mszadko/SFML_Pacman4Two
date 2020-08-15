@@ -19,8 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="animatedGridWalker.cpp" />
     <ClCompile Include="animation.cpp" />
     <ClCompile Include="animationStateMachine.cpp" />
+    <ClCompile Include="ghost.cpp" />
     <ClCompile Include="gridWalker.cpp" />
     <ClCompile Include="intersection.cpp" />
     <ClCompile Include="main.cpp" />
@@ -28,8 +30,10 @@
     <ClCompile Include="player.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="animatedGridWalker.h" />
     <ClInclude Include="animation.h" />
     <ClInclude Include="animationStateMachine.h" />
+    <ClInclude Include="ghost.h" />
     <ClInclude Include="gridWalker.h" />
     <ClInclude Include="intersection.h" />
     <ClInclude Include="level.h" />
