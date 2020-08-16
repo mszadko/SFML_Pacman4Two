@@ -26,6 +26,7 @@ public:
 	void SwitchFrightenedMode(GhostFrightenedState NewIsFrightened);
 protected:
 	virtual void UpdateAnimation(sf::Time deltaTime);
+	virtual bool IsIntersectionValid(Intersection* intersectionToCheck);
 	void FindNextDirection();
 	GhostFrightenedState frightenedState;
 	bool bIsReturningToBase;

@@ -158,6 +158,23 @@ void Ghost::UpdateAnimation(sf::Time deltaTime)
 	}
 }
 
+bool Ghost::IsIntersectionValid(Intersection * intersectionToCheck)
+{
+	if (intersectionToCheck)
+	{
+		if ((intersectionToCheck->type & 16) == 16)
+		{
+			return false;
+		}
+		else if ((intersectionToCheck->type & 32)==32&&bIsReturningToBase)
+		{
+			return true;
+		}
+		return true;
+	}
+	return false;
+}
+
 void Ghost::FindNextDirection()
 {
 	if (targetIntersection)

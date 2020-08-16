@@ -136,6 +136,20 @@ void Player::Die()
 
 bool Player::IsIntersectionValid(Intersection * intersectionToCheck)
 {
-	return true;
+
+	if (intersectionToCheck)
+	{
+		if ((intersectionToCheck->type & 16) == 16)
+		{
+			return true;
+		}
+		else if ((intersectionToCheck->type & 32) == 32)
+		{
+			return false;
+		}
+		return true;
+	}
+	return false;
+
 }
 

@@ -15,7 +15,7 @@ int main()
 	
 	sf::RenderWindow window(sf::VideoMode(448, 496), "Pacman!");
 	window.setFramerateLimit(144);
-	//Player player(sf::Vector2f(11*16.0f,13*16.0f),level.GetIntersectionAt(11,13),90.0f);
+	//Player player(sf::Vector2f(13*16.0f,11*16.0f),level.GetIntersectionAt(13,11),90.0f);
 	Player player(sf::Vector2f(16.0f,16.0f), level.GetIntersectionAt(1, 1), 90.0f);
 
 	std::array<Ghost*, 4> ghosts{ nullptr };

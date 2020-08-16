@@ -135,7 +135,11 @@ bool GridWalker::IsIntersectionValid(Intersection * intersectionToCheck)
 {
 	if (intersectionToCheck)
 	{	
-		if ((intersectionToCheck->type&16)==16)
+		if ((intersectionToCheck->type & 16)==16)
+		{
+			return false;
+		}
+		else if ((intersectionToCheck->type & 32) == 32)
 		{
 			return false;
 		}
