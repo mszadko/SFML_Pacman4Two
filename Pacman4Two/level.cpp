@@ -164,16 +164,21 @@ void Level::recalculateSum()
 	}
 }
 
-bool Level::ConsumeFood(sf::Vector2i location)
+FoodType Level::ConsumeFood(sf::Vector2i location)
 {
 	if (location.x >= 0 &&location.x<=mapWidth&& location.y >= 0 &&location.y<=mapHeight )
 	{
 		int index = location.x + location.y*mapWidth;
-		if (foodArray[index] == 3)
+		if (foodArray[index] == REGULAR)
 		{
 			foodArray[index] = 0;
-			return true;
+			return REGULAR;
+		}
+		else if (foodArray[index] == POWERUP)
+		{
+			foodArray[index] = 0;
+			return POWERUP;
 		}
 	}	
-	return false;
+	return EMPTY;
 }

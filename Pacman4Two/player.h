@@ -11,11 +11,12 @@ public:
 	Player(sf::Vector2f startPosition, Intersection* currentIntersection,float speed = 100.0f);
 	void processEvents(sf::Event event);
 	void update(sf::Time deltaTime);
+	void Die();
 protected:
 	virtual bool IsIntersectionValid(Intersection* intersectionToCheck);
 	virtual void UpdateAnimation(sf::Time deltaTime);
 private:	
-	void Die();
+
 	bool bIsDead;
 	Direction currentAnimDirection;
 };

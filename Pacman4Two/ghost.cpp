@@ -2,6 +2,7 @@
 #include "intersection.h"
 #include <iostream>
 #include "player.h"
+#include "sharedEnumerations.h"
 
 Ghost::Ghost(sf::Vector2f startPosition, Intersection * currentIntersection, GhostType type, float speed)
 	: AnimatedGridWalker(startPosition, currentIntersection, "Textures/ghostsspritesheet.png", speed)
@@ -108,6 +109,13 @@ void Ghost::update(sf::Time deltaTime)
 	sprite.setPosition(CalculateSpritePosition());
 	FindNextDirection();
 	TogglePatrolMode();
+	if (bIsReturningToBase)
+	{
+		if (VectorDifferenceMagnitue(getPosition(), respawnLocation) < 1)
+		{
+			bIsReturningToBase = false;
+		}
+	}
 }
 
 void Ghost::UpdateAnimation(sf::Time deltaTime)
@@ -166,9 +174,17 @@ bool Ghost::IsIntersectionValid(Intersection * intersectionToCheck)
 		{
 			return false;
 		}
-		else if ((intersectionToCheck->type & 32)==32&&bIsReturningToBase)
+		else if ((intersectionToCheck->type & 32)==32)
 		{
-			return true;
+			if (bIsReturningToBase)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+			
 		}
 		return true;
 	}
@@ -234,11 +250,31 @@ void Ghost::TogglePatrolMode()
 
 void Ghost::SwitchFrightenedMode(GhostFrightenedState NewIsFrightened)
 {
+	if (bIsReturningToBase)
+	{
+		return;
+	}
 	if (NewIsFrightened==NOTFRIGHTENED||NewIsFrightened==FRIGHTENED)
 	{
 		milisecondsElapsedDuringBeingFrightened = 0;
 	}
 	frightenedState = NewIsFrightened;
+}
+
+bool Ghost::IsFrightened()
+{
+	return frightenedState;
+}
+
+bool Ghost::IsDead()
+{
+	return bIsReturningToBase;
+}
+
+void Ghost::Die()
+{
+	SwitchFrightenedMode(NOTFRIGHTENED);
+	bIsReturningToBase = true;
 }
 
 void Ghost::UpdateFrightenedMode()

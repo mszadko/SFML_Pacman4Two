@@ -15,6 +15,7 @@ protected:
 	Direction direction;
 	Intersection* currentIntersection, *previousIntersection, *targetIntersection;
 	Direction nextDirection;
+	
 private:
 	Intersection* FindIntersectionInDirection(Direction direction);
 	void SwapDirection();

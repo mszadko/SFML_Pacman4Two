@@ -24,6 +24,9 @@ public:
 	GhostType type;
 	Player* player;
 	void SwitchFrightenedMode(GhostFrightenedState NewIsFrightened);
+	bool IsFrightened();
+	bool IsDead();
+	void Die();
 protected:
 	virtual void UpdateAnimation(sf::Time deltaTime);
 	virtual bool IsIntersectionValid(Intersection* intersectionToCheck);

@@ -48,6 +48,9 @@
     <ClCompile Include="animatedGridWalker.cpp">
       <Filter>Source Files\Private</Filter>
     </ClCompile>
+    <ClCompile Include="gameManager.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="player.h">
@@ -75,6 +78,9 @@
       <Filter>Source Files\Public</Filter>
     </ClInclude>
     <ClInclude Include="animatedGridWalker.h">
+      <Filter>Source Files\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="gameManager.h">
       <Filter>Source Files\Public</Filter>
     </ClInclude>
   </ItemGroup>
