@@ -4,6 +4,8 @@
 
 GridWalker::GridWalker(sf::Vector2f startPosition,Intersection* currentIntersection,float speed)
 {
+	respawnLocation = startPosition;
+	respawnIntersection = currentIntersection;
 	setPosition(startPosition);
 	this->currentIntersection = currentIntersection;
 	this->speed = speed;
@@ -103,6 +105,14 @@ void GridWalker::SetNextDirection(Direction newDirection)
 			break;
 		}
 	}
+}
+
+void GridWalker::ResetMovement()
+{
+	setPosition(respawnLocation);
+	previousIntersection = targetIntersection = nullptr;
+	currentIntersection = respawnIntersection;
+	direction = IDLE;
 }
 
 Intersection * GridWalker::FindIntersectionInDirection(Direction direction)

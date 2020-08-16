@@ -10,10 +10,11 @@ Ghost::Ghost(sf::Vector2f startPosition, Intersection * currentIntersection, Gho
 	this->type = type;
 	bIsOnPatrol = true;
 	bIsReturningToBase = false;
+	bIsTurnedOn = false;
 	frightenedState = NOTFRIGHTENED;
 	milisecondsElapsedFromTargetSwitch = 0;
 	milisecondsElapsedDuringBeingFrightened = 0;
-	respawnLocation = sf::Vector2f(currentIntersection->intersectionPosition.x*ftileSize, currentIntersection->intersectionPosition.y*ftileSize);
+
 	switch (type)
 	{
 	case RED:
@@ -97,6 +98,13 @@ Ghost::Ghost(sf::Vector2f startPosition, Intersection * currentIntersection, Gho
 
 void Ghost::update(sf::Time deltaTime)
 {
+	if (!bIsTurnedOn)
+	{
+		milisecondsElapsedDuringBeingTurnedOff += deltaTime.asMilliseconds();
+		UpdateTurnedOffMode();
+		return;
+	}
+
 	milisecondsElapsedFromTargetSwitch += deltaTime.asMilliseconds();
 	if (frightenedState)
 	{
@@ -184,7 +192,6 @@ bool Ghost::IsIntersectionValid(Intersection * intersectionToCheck)
 			{
 				return false;
 			}
-			
 		}
 		return true;
 	}
@@ -225,6 +232,14 @@ void Ghost::FindNextDirection()
 			}
 		}
 		SetNextDirection(targetIntersection->directions[chosenIndex]);
+	}
+}
+
+void Ghost::draw(sf::RenderTarget & target, sf::RenderStates states) const
+{
+	if (bIsTurnedOn)
+	{
+		target.draw(sprite, states);
 	}
 }
 
@@ -277,6 +292,18 @@ void Ghost::Die()
 	bIsReturningToBase = true;
 }
 
+void Ghost::Restart()
+{
+	bIsOnPatrol = true;
+	bIsReturningToBase = false;
+	bIsTurnedOn = false;
+	frightenedState = NOTFRIGHTENED;
+	milisecondsElapsedFromTargetSwitch = 0;
+	milisecondsElapsedDuringBeingFrightened = 0;
+	ResetMovement();
+	SetNextDirection(DOWN);
+}
+
 void Ghost::UpdateFrightenedMode()
 {
 	if (frightenedState)
@@ -285,6 +312,15 @@ void Ghost::UpdateFrightenedMode()
 			SwitchFrightenedMode(NOTFRIGHTENED);
 		else if (milisecondsElapsedDuringBeingFrightened > frightenedTime)
 			SwitchFrightenedMode(FRIGHTENEDENDING);
+	}
+}
+
+void Ghost::UpdateTurnedOffMode()
+{
+	if (milisecondsElapsedDuringBeingTurnedOff>type*turnedOffTime)
+	{
+		bIsTurnedOn = true;
+		milisecondsElapsedDuringBeingTurnedOff = 0;
 	}
 }
 

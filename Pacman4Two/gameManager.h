@@ -4,18 +4,28 @@
 #include "sharedEnumerations.h"
 #include "ghost.h"
 
+
+
 class GameManager
 {
 public:
 	static GameManager& GetGameManager();
 	void FrightenAllGhosts();
 	Level* level = nullptr;
-	Player*player = nullptr;
+	sf::RenderWindow* window=nullptr;
+	std::vector<Player*> players;
 	std::array<Ghost*, 4> ghosts{ nullptr };
 	void update(sf::Time deltaTime);
+	void draw();
+	void updateGhosts(sf::Time deltaTime);
+	void updatePlayers(sf::Time deltaTime);
+	void drawGhosts();
+	void drawPlayers();
+	void ProcessCollisionCheck();
+	void StageCleared();
 private:
 	GameManager();
-
+	GameState gameState;
 
 public:
 	GameManager(GameManager const&) = delete;

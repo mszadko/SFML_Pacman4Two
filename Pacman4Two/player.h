@@ -12,11 +12,11 @@ public:
 	void processEvents(sf::Event event);
 	void update(sf::Time deltaTime);
 	void Die();
+	void Restart();
 protected:
 	virtual bool IsIntersectionValid(Intersection* intersectionToCheck);
 	virtual void UpdateAnimation(sf::Time deltaTime);
 private:	
-
 	bool bIsDead;
 	Direction currentAnimDirection;
 };

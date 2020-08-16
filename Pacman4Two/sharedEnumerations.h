@@ -14,6 +14,12 @@ enum FoodType
 	POWERUP = 2,
 	REGULAR = 3
 };
+enum GameState
+{
+	STOPPED,
+	RUNNING
+};
+
 static const int mapWidth = 28;
 static const int mapHeight = 31;
 static const int tileSize = 16;

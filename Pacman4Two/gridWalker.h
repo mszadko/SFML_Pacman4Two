@@ -15,16 +15,16 @@ protected:
 	Direction direction;
 	Intersection* currentIntersection, *previousIntersection, *targetIntersection;
 	Direction nextDirection;
-	
+	void ResetMovement();
+
+	sf::Vector2f respawnLocation;
+	Intersection* respawnIntersection;
 private:
 	Intersection* FindIntersectionInDirection(Direction direction);
 	void SwapDirection();
 	bool OvershotTarget();
 	float DistanceFromPreviousNode(sf::Vector2f targetPosition);
-	
 	sf::Vector2f DirectionToVector(Direction direction);
 
-	float speed;
-	
-	
+	float speed;	
 };

@@ -55,8 +55,14 @@ Player::Player(sf::Vector2f startPosition, Intersection* currentIntersection, fl
 
 void Player::processEvents(sf::Event event)
 {
+	if (event.key.code == sf::Keyboard::A)
+	{
+	Restart();
+	}
+
 	if (bIsDead)
 		return;
+
 	if (event.key.code == sf::Keyboard::Up)
 	{
 		SetNextDirection(UP);
@@ -80,6 +86,7 @@ void Player::processEvents(sf::Event event)
 	{
 		Die();
 	}
+
 }
 
 void Player::update(sf::Time deltaTime)
@@ -92,9 +99,7 @@ void Player::update(sf::Time deltaTime)
 
 void Player::UpdateAnimation(sf::Time deltaTime)
 {
-	static bool bIsAlreadyDead = bIsDead;
-
-	if (currentAnimDirection!=direction&&!bIsDead)
+	if (currentAnimDirection != direction && !bIsDead)
 	{
 		currentAnimDirection = direction;
 		switch (direction)
@@ -115,12 +120,11 @@ void Player::UpdateAnimation(sf::Time deltaTime)
 			break;
 		default:
 			break;
-		}	
+		}
 	}
-	if (bIsDead && !bIsAlreadyDead)
+	if (bIsDead && animStateMachine.GetCurrentState() != "DEATH")
 	{
-		bIsAlreadyDead = bIsDead;
-		animStateMachine.PlayState("DEATH");
+		animStateMachine.PlayState("DEATH", true);
 	}
 	if (direction != IDLE || bIsDead)
 	{
@@ -132,6 +136,12 @@ void Player::Die()
 {
 	bIsDead = true;
 	direction = IDLE;
+}
+
+void Player::Restart()
+{
+	ResetMovement();
+	bIsDead = false;
 }
 
 bool Player::IsIntersectionValid(Intersection * intersectionToCheck)

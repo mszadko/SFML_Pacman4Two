@@ -27,6 +27,7 @@ public:
 	bool IsFrightened();
 	bool IsDead();
 	void Die();
+	void Restart();
 protected:
 	virtual void UpdateAnimation(sf::Time deltaTime);
 	virtual bool IsIntersectionValid(Intersection* intersectionToCheck);
@@ -36,15 +37,18 @@ protected:
 	bool bIsOnPatrol;
 	sf::Vector2f patrolPoint;
 private:
+	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 	void TogglePatrolMode();
 	void UpdateFrightenedMode();
+	void UpdateTurnedOffMode();
 	Direction currentAnimDirection;
 	int milisecondsElapsedFromTargetSwitch;
 	int milisecondsElapsedDuringBeingFrightened;
-	sf::Vector2f respawnLocation;
 	const int patrolTime = 5000;
 	const int chasingTime = 30000;
 	const int frightenedTime = 6500;
 	const int frightenedEndingTime = 3000;
-	
+	const int turnedOffTime = 2000;
+	bool bIsTurnedOn;
+	int milisecondsElapsedDuringBeingTurnedOff;
 };

@@ -43,3 +43,8 @@ void AnimationStateMachine::PlayState(std::string newState,bool bPlayFromStart)
 	}
 	
 }
+
+std::string AnimationStateMachine::GetCurrentState()
+{
+	return currentState;
+}
