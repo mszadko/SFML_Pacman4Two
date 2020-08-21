@@ -70,8 +70,10 @@ artifacts/
 *.svclog
 *.scc
 
-# *.o files
-*.o
+# files that been added when i started to work on old laptop with linux
+**.o
+**.sh
+*Pacman
 
 # Chutzpah Test files
 _Chutzpah*
