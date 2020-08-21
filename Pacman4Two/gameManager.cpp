@@ -157,6 +157,12 @@ void GameManager::StageCleared()
 			ghosts[ghostIndex]->Restart();
 		}
 	}
+	size_t numberOfPlayers = players.size();
+	for (size_t playerIndex = 0; playerIndex < numberOfPlayers ; playerIndex++)
+	{
+		players[playerIndex]->Restart();
+	}
+	
 }
 
 

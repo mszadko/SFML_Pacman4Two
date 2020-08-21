@@ -14,7 +14,7 @@ public:
 	Level* level = nullptr;
 	sf::RenderWindow* window=nullptr;
 	std::vector<Player*> players;
-	std::array<Ghost*, 4> ghosts{ nullptr };
+	std::array<Ghost*, 4> ghosts{{ nullptr }};
 	void update(sf::Time deltaTime);
 	void draw();
 	void updateGhosts(sf::Time deltaTime);
