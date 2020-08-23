@@ -49,7 +49,6 @@ void GameManager::SendKeyPressToServer(sf::Event event)
 	packet<<keyToSend;
 	
 	SendClientToServerPacket(packet);
-	std::cout<<"Client pressed "<<keyToSend<<std::endl;	
 }
 
 void GameManager::SendKeyPressToAnotherClient(sf::Event event, ConnectionType clientToSendTo)
@@ -64,7 +63,7 @@ void GameManager::SendKeyPressToAnotherClient(sf::Event event, ConnectionType cl
 	SendServerToClientPacket(packet,clientToSendTo);
 }
 
-void GameManager::ProcessPacketListening()
+void GameManager::ProcessServerPacketListening()
 {
 	sf::Packet packet;
 	sf::IpAddress senderAddress;
@@ -72,8 +71,23 @@ void GameManager::ProcessPacketListening()
 	
 	if(serverSocket.receive(packet,senderAddress,senderPort)==sf::Socket::Done)
 	{
+		ConnectionType packetFrom;
+		switch (senderPort)
+		{
+			case serverPort:
+				packetFrom = ConnectionType::SERVER;
+				break;
+			case clientOnePort:
+				packetFrom = ConnectionType::CLIENTONE;
+				break;
+			case clientTwoPort:
+				packetFrom = ConnectionType::CLIENTTWO;
+				break;
+			default:
+				packetFrom = ConnectionType::NONE;
+				break;
+		}
 		
-		ConnectionType packetFrom = (senderPort == clientOnePort) ? ConnectionType::CLIENTONE : ConnectionType::CLIENTTWO;
 		PacketTag receivedPacketTag;
 		sf::Int8 packetFlag;
 		packet >> packetFlag;
@@ -85,17 +99,54 @@ void GameManager::ProcessPacketListening()
 				
 				break;
 			case ToServerClientPressedButton:
-				sf::Int32 receivedKeyCode;
-				packet >> receivedKeyCode;  
-				sf::Event receivedEvent;
-				receivedEvent.type = sf::Event::KeyPressed;
-				receivedEvent.key.code = (sf::Keyboard::Key)receivedKeyCode;
-				players[packetFrom == ConnectionType::CLIENTONE ? 0 : 1]->processEvents(receivedEvent);
-				
-				SendKeyPressToAnotherClient(receivedEvent,packetFrom == ConnectionType::CLIENTONE ? CLIENTONE : CLIENTTWO);
+				{
+					sf::Int32 receivedKeyCode;
+					packet >> receivedKeyCode;  
+					sf::Event receivedEvent;
+					receivedEvent.type = sf::Event::KeyPressed;
+					receivedEvent.key.code = (sf::Keyboard::Key)receivedKeyCode;
+					players[packetFrom == ConnectionType::CLIENTONE ? 0 : 1]->processEvents(receivedEvent);
+					SendKeyPressToAnotherClient(receivedEvent,packetFrom == ConnectionType::CLIENTONE ? CLIENTTWO : CLIENTONE);
+				}
 				break;
-			case ToClientPlayerNewWalkInfo:
 				
+			case ToClientPlayerNewWalkInfo:
+			case ToClientPlayerPositionCorrection:
+			case ToClientGhostNewWalkInfo:
+			case ToClientGhostPositionCorrection:
+			case ToClientToggleGameState:
+			default:
+				break;
+		}
+	}
+}
+
+void GameManager::ProcessClientPacketListening()
+{
+	sf::Packet packet;
+	sf::IpAddress senderAddress;
+	unsigned short senderPort;
+	sf::UdpSocket* socketToListen = GetConnectionType() == ConnectionType::CLIENTONE ? &clientOneSocket : &clientTwoSocket;
+	if(socketToListen->receive(packet,senderAddress,senderPort)==sf::Socket::Done)
+	{
+		PacketTag receivedPacketTag;
+		sf::Int8 packetFlag;
+		packet >> packetFlag;
+		receivedPacketTag = (PacketTag) packetFlag;
+		
+		switch (receivedPacketTag)
+		{
+			case ToClientPlayerNewWalkInfo:
+				{
+					sf::Int32 receivedKeyCode;
+					packet >> receivedKeyCode;
+				
+					sf::Event receivedEvent;
+					receivedEvent.type = sf::Event::KeyPressed;
+					receivedEvent.key.code = (sf::Keyboard::Key)receivedKeyCode;
+				
+					players[GetConnectionType() == ConnectionType::CLIENTONE ? 1 : 0]->processEvents(receivedEvent);
+				}
 				break;
 			case ToClientPlayerPositionCorrection:
 				
@@ -109,11 +160,12 @@ void GameManager::ProcessPacketListening()
 			case ToClientToggleGameState:
 				
 				break;
+			case ToServerToggleGameState:
+			case ToServerClientPressedButton:
 			default:
 				break;
-		}
+		}		
 	}
-
 }
 
 sf::Socket::Status GameManager::SendClientToServerPacket(sf::Packet &packet)
@@ -133,7 +185,6 @@ sf::Socket::Status GameManager::SendClientToServerPacket(sf::Packet &packet)
 sf::Socket::Status GameManager::SendServerToClientPacket(sf::Packet &packet, ConnectionType clientToSendTo)
 {
 	sf::IpAddress recipient = sf::IpAddress::Broadcast;
-	
 	serverSocket.send(packet,recipient, ConnectionType::CLIENTONE==clientToSendTo? clientOnePort : clientTwoPort);
 }
 

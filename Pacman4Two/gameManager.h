@@ -28,7 +28,8 @@ public:
 	void SetupNetworking(int argc, char* argv[]);
 	void SendKeyPressToServer(sf::Event event);
 	void SendKeyPressToAnotherClient(sf::Event event, ConnectionType clientToSendTo);
-	void ProcessPacketListening();
+	void ProcessServerPacketListening();
+	void ProcessClientPacketListening();
 	
 private:
 	void updateGhosts(sf::Time deltaTime);

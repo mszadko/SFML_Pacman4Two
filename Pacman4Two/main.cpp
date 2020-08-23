@@ -68,7 +68,6 @@ int main(int argc, char *argv[])
 					}
 					else
 					{
-						std::cout<<"Player two process event\n";
 						playerTwo.processEvents(event);
 					}
 				}
@@ -81,10 +80,16 @@ int main(int argc, char *argv[])
 			}
 		}
 		
-		if (GameManager::GetGameManager().IsServer())
+		if (GameManager::GetGameManager().GetConnectionType() == ConnectionType::SERVER)
 		{
-			GameManager::GetGameManager().ProcessPacketListening();
+			GameManager::GetGameManager().ProcessServerPacketListening();	
 		}
+		else if(GameManager::GetGameManager().IsClient())
+		{
+			GameManager::GetGameManager().ProcessClientPacketListening();
+		}
+		
+		
 		
 		GameManager::GetGameManager().update(deltaTime);
 		window.clear();
