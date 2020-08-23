@@ -1,13 +1,205 @@
 #include "gameManager.h"
+#include <iostream>
+
 GameManager::GameManager()
 {
-	gameState = RUNNING;
+	gameState = GameState::RUNNING;//GameState::STOPPED;
+	connectionType = ConnectionType::NONE;
+	
+	clientOneSocket.setBlocking(false);
+	clientTwoSocket.setBlocking(false);
+	serverSocket.setBlocking(false);
 }
 
 GameManager& GameManager::GetGameManager()
 {
 	static GameManager instance;
 	return instance;
+}
+
+void GameManager::SetupNetworking(int argc, char* argv[])
+{	
+	for (int i = 0; i < argc; i++)
+	{	
+		if (argv[i]==std::string("clientone"))
+		{
+			GameManager::GetGameManager().SetConnectionType(ConnectionType::CLIENTONE);
+			break;
+		}
+		if (argv[i]==std::string("clienttwo"))
+		{
+			GameManager::GetGameManager().SetConnectionType(ConnectionType::CLIENTTWO);
+			break;
+		}
+		if (argv[i]==std::string("server"))
+		{	
+			GameManager::GetGameManager().SetConnectionType(ConnectionType::SERVER);
+			break;
+		}
+	}
+}
+
+void GameManager::SendKeyPressToServer(sf::Event event)
+{
+	sf::Packet packet;
+	sf::Int8 packetFlag = (sf::Int8) PacketTag::ToServerClientPressedButton;
+	sf::Int32 keyToSend = event.key.code;
+	
+	packet<<packetFlag;
+	packet<<keyToSend;
+	
+	SendClientToServerPacket(packet);
+	std::cout<<"Client pressed "<<keyToSend<<std::endl;	
+}
+
+void GameManager::SendKeyPressToAnotherClient(sf::Event event, ConnectionType clientToSendTo)
+{
+	sf::Packet packet;
+	sf::Int8 packetFlag = (sf::Int8) PacketTag::ToClientPlayerNewWalkInfo;
+	sf::Int32 keyToSend = event.key.code;
+	
+	packet << packetFlag;
+	packet << keyToSend;
+	
+	SendServerToClientPacket(packet,clientToSendTo);
+}
+
+void GameManager::ProcessPacketListening()
+{
+	sf::Packet packet;
+	sf::IpAddress senderAddress;
+	unsigned short senderPort;
+	
+	if(serverSocket.receive(packet,senderAddress,senderPort)==sf::Socket::Done)
+	{
+		
+		ConnectionType packetFrom = (senderPort == clientOnePort) ? ConnectionType::CLIENTONE : ConnectionType::CLIENTTWO;
+		PacketTag receivedPacketTag;
+		sf::Int8 packetFlag;
+		packet >> packetFlag;
+		receivedPacketTag = (PacketTag) packetFlag;
+		
+		switch (receivedPacketTag)
+		{
+			case ToServerToggleGameState:
+				
+				break;
+			case ToServerClientPressedButton:
+				sf::Int32 receivedKeyCode;
+				packet >> receivedKeyCode;  
+				sf::Event receivedEvent;
+				receivedEvent.type = sf::Event::KeyPressed;
+				receivedEvent.key.code = (sf::Keyboard::Key)receivedKeyCode;
+				players[packetFrom == ConnectionType::CLIENTONE ? 0 : 1]->processEvents(receivedEvent);
+				
+				SendKeyPressToAnotherClient(receivedEvent,packetFrom == ConnectionType::CLIENTONE ? CLIENTONE : CLIENTTWO);
+				break;
+			case ToClientPlayerNewWalkInfo:
+				
+				break;
+			case ToClientPlayerPositionCorrection:
+				
+				break;
+			case ToClientGhostNewWalkInfo:
+				
+				break;
+			case ToClientGhostPositionCorrection:
+				
+				break;
+			case ToClientToggleGameState:
+				
+				break;
+			default:
+				break;
+		}
+	}
+
+}
+
+sf::Socket::Status GameManager::SendClientToServerPacket(sf::Packet &packet)
+{
+	sf::IpAddress recipient = sf::IpAddress::Broadcast;
+	
+	if (GetConnectionType() == ConnectionType::CLIENTONE)
+	{
+		return clientOneSocket.send(packet, recipient, serverPort);
+	}
+	else if (GetConnectionType() == ConnectionType::CLIENTTWO)
+	{
+		return clientTwoSocket.send(packet, recipient, serverPort);
+	}
+}	
+
+sf::Socket::Status GameManager::SendServerToClientPacket(sf::Packet &packet, ConnectionType clientToSendTo)
+{
+	sf::IpAddress recipient = sf::IpAddress::Broadcast;
+	
+	serverSocket.send(packet,recipient, ConnectionType::CLIENTONE==clientToSendTo? clientOnePort : clientTwoPort);
+}
+
+void GameManager::SetConnectionType(ConnectionType newConnectionType)
+{
+	switch (connectionType)
+	{
+		case CLIENTONE:
+			clientOneSocket.unbind();
+			break;
+		case CLIENTTWO:
+			clientTwoSocket.unbind();
+			break;
+		case SERVER:
+			serverSocket.unbind();
+			break;
+		case NONE:
+		default:
+			break;
+	}
+	
+	connectionType = newConnectionType;
+	
+	switch (connectionType)
+	{
+		case CLIENTONE:
+			std::cout<<"Connected as a client one.\n";
+			clientOneSocket.bind(clientOnePort);
+			break;
+		case CLIENTTWO:
+			std::cout<<"Connected as a client two.\n";
+			clientTwoSocket.bind(clientTwoPort);
+			break;
+		case SERVER:
+			std::cout<<"Connected as a server.\n";
+			serverSocket.bind(serverPort);
+			break;
+		case NONE:
+		default:
+			break;	
+	}
+}
+
+ConnectionType GameManager::GetConnectionType()
+{
+	return connectionType;
+}
+
+bool GameManager::IsServer()
+{
+	return connectionType==ConnectionType::SERVER;
+}
+
+bool GameManager::IsClient()
+{
+	return connectionType == ConnectionType::CLIENTONE || connectionType == ConnectionType::CLIENTTWO;
+}
+
+bool GameManager::IsStandalone()
+{
+	return connectionType == ConnectionType::NONE;
+}
+
+void GameManager::SetGameState(GameState newGameState)
+{
+	gameState = newGameState;
 }
 
 void GameManager::FrightenAllGhosts()
@@ -108,6 +300,7 @@ void GameManager::drawPlayers()
 
 void GameManager::ProcessCollisionCheck()
 {
+	return;
 	size_t numberOfGhosts = ghosts.size();
 	size_t numberOfPlayers = players.size();
 	
@@ -164,5 +357,3 @@ void GameManager::StageCleared()
 	}
 	
 }
-
-

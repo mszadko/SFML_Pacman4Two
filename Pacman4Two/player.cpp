@@ -2,9 +2,14 @@
 #include <iostream>
 #include <math.h>
 
-Player::Player(sf::Vector2f startPosition, Intersection* currentIntersection, float speed)
+Player::Player(sf::Vector2f startPosition, Intersection* currentIntersection,PlayerNumer playerNumber, float speed)
 	: AnimatedGridWalker(startPosition,currentIntersection,"Textures/pacmanspritesheet.png", speed)
 {
+	this->playerNumber = playerNumber;
+	if (playerNumber)
+	{
+		sprite.setColor(sf::Color(255,0,0));
+	}
 	Animation moveUpAnim = Animation(3, 60, true, &sprite,
 		{
 		sf::IntRect( 0, 0,tileSize,tileSize),
@@ -51,13 +56,16 @@ Player::Player(sf::Vector2f startPosition, Intersection* currentIntersection, fl
 	animStateMachine.AddState("RIGHT", moveRightAnim);
 	animStateMachine.AddState("DEATH", deathAnim);
 	currentAnimDirection = IDLE;
+	
+
+	
 }
 
 void Player::processEvents(sf::Event event)
 {
 	if (event.key.code == sf::Keyboard::A)
 	{
-	Restart();
+		Restart();
 	}
 
 	if (bIsDead)
@@ -71,22 +79,15 @@ void Player::processEvents(sf::Event event)
 	else if (event.key.code == sf::Keyboard::Down)
 	{
 		SetNextDirection(DOWN);
-
 	}	
 	else if (event.key.code == sf::Keyboard::Left)
 	{
 		SetNextDirection(LEFT);
-
 	}
 	else if (event.key.code == sf::Keyboard::Right)
 	{
 		SetNextDirection(RIGHT);
 	}
-	else if (event.key.code ==sf::Keyboard::Space)
-	{
-		Die();
-	}
-
 }
 
 void Player::update(sf::Time deltaTime)
@@ -136,6 +137,11 @@ void Player::Die()
 {
 	bIsDead = true;
 	direction = IDLE;
+}
+
+bool Player::IsDead()
+{
+	return bIsDead;
 }
 
 void Player::Restart()

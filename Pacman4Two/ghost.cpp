@@ -98,6 +98,8 @@ Ghost::Ghost(sf::Vector2f startPosition, Intersection * currentIntersection, Gho
 
 void Ghost::update(sf::Time deltaTime)
 {
+	milisecondsElapsedFromTargetSwitch += deltaTime.asMilliseconds();
+	
 	if (!bIsTurnedOn)
 	{
 		milisecondsElapsedDuringBeingTurnedOff += deltaTime.asMilliseconds();
@@ -105,7 +107,6 @@ void Ghost::update(sf::Time deltaTime)
 		return;
 	}
 
-	milisecondsElapsedFromTargetSwitch += deltaTime.asMilliseconds();
 	if (frightenedState)
 	{
 		milisecondsElapsedDuringBeingFrightened += deltaTime.asMilliseconds();
@@ -211,14 +212,21 @@ void Ghost::FindNextDirection()
 			{
 				if (!IsIntersectionValid(targetIntersection->neighbours[i]))
 					continue;
-				if (!player)
+				if (!IsTherePlayerToChase())
 				{
 					SetNextDirection(targetIntersection->directions[i]);
 					break;
 				}
 				else
 				{
-					sf::Vector2f targetPosition = (bIsOnPatrol||frightenedState) ? patrolPoint : player->getPosition();
+					Player* playerToChase = GetClosestPlayer();
+					if (!playerToChase)
+					{
+						SetNextDirection(targetIntersection->directions[i]);
+						break;
+					}
+					
+					sf::Vector2f targetPosition = (bIsOnPatrol||frightenedState) ? patrolPoint : playerToChase->getPosition();
 					targetPosition = bIsReturningToBase ? respawnLocation : targetPosition;
 					sf::Vector2f intersectionPos = sf::Vector2f(targetIntersection->neighbours[i]->intersectionPosition.x*ftileSize, targetIntersection->neighbours[i]->intersectionPosition.y*ftileSize);
 					sf::Vector2f difference = targetPosition - intersectionPos;
@@ -322,5 +330,37 @@ void Ghost::UpdateTurnedOffMode()
 		bIsTurnedOn = true;
 		milisecondsElapsedDuringBeingTurnedOff = 0;
 	}
+}
+
+bool Ghost::IsTherePlayerToChase()
+{
+	bool bIsThereProperPlayerToChase = false;
+	for (size_t i = 0; i < players.size(); i++)
+	{
+		if (players[i]&&!players[i]->IsDead())
+		{
+			return true;
+		}				
+	}
+	return false;
+}
+
+Player* Ghost::GetClosestPlayer()
+{
+	Player* playerToChase = nullptr;
+	float minDistanceToPlayer = 99999.0f;
+	for (size_t i = 0; i < players.size(); i++)
+	{
+		if (players[i]&&!players[i]->IsDead())
+		{
+			float distanceToCurrentlyCheckedPlayer = VectorDifferenceMagnitue(getPosition(),players[i]->getPosition());
+			if (minDistanceToPlayer>distanceToCurrentlyCheckedPlayer)
+			{
+				playerToChase = players[i];
+				minDistanceToPlayer = distanceToCurrentlyCheckedPlayer;
+			}
+		}				
+	}
+	return playerToChase;
 }
 

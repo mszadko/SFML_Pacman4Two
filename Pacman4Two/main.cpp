@@ -6,7 +6,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
 
-
 #include "player.h"
 #include "ghost.h"
 #include "level.h"
@@ -14,69 +13,35 @@
 #include "gameManager.h"
 
 
-
-enum ConnectionType
-{
-	NONE,
-	SERVER,
-	CLIENT
-};
-
-const unsigned short clientOneListenSocketPort = 54001;
-const unsigned short serverListenSocketPort = 54000;
-
-
 int main(int argc, char *argv[])
 {
-	ConnectionType connectionType;
-	sf::UdpSocket clientListenSocket;
-	clientListenSocket.setBlocking(false);
-	sf::UdpSocket serverListenSocket;
-	serverListenSocket.setBlocking(false);
-	
-	for (int i = 0; i < argc; i++)
-	{
-		
-		if (argv[i]==std::string("client"))
-		{
-			connectionType=ConnectionType::CLIENT;
-			std::cout<<"Connected as a client\n";
-			clientListenSocket.bind(clientOneListenSocketPort);
-			break;
-		}
-		if (argv[i]==std::string("server"))
-		{
-			connectionType=ConnectionType::SERVER;
-			std::cout<<"Connected as a server\n";
-			serverListenSocket.bind(serverListenSocketPort);
-			break;
-		}
-	}
-	
+	GameManager::GetGameManager().SetupNetworking(argc,argv);
 	
 	Level level;
 	GameManager::GetGameManager().level = &level;
 	sf::RenderWindow window(sf::VideoMode(448, 496), "Pacman!");
 	window.setVerticalSyncEnabled(true);
 
-	Player player(sf::Vector2f(13*16.0f, 17*16.0f), level.GetIntersectionAt(13, 17), 90.0f);
-	GameManager::GetGameManager().players.push_back(&player);
-
+	Player playerOne(sf::Vector2f(14*16.0f, 17*16.0f), level.GetIntersectionAt(14, 17),PlayerNumer::FIRST, 90.0f);
+	Player playerTwo(sf::Vector2f(13*16.0f, 17*16.0f), level.GetIntersectionAt(13, 17),PlayerNumer::SECOND, 90.0f);
+	GameManager::GetGameManager().players.push_back(&playerOne);
+	GameManager::GetGameManager().players.push_back(&playerTwo);
+	
 	std::array<Ghost*, 4> ghosts{ nullptr };
 	ghosts[0] = new Ghost(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), RED, 80.0f);
-	ghosts[0]->player = &player;
+	ghosts[0]->players=GameManager::GetGameManager().players;
 	GameManager::GetGameManager().ghosts[0] = ghosts[0];
 
 	ghosts[1] = new Ghost(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), PINK, 80.0f);
-	ghosts[1]->player = &player;
+	ghosts[1]->players=GameManager::GetGameManager().players;
 	GameManager::GetGameManager().ghosts[1] = ghosts[1];
 
 	ghosts[2] = new Ghost(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), BLUE, 80.0f);
-	ghosts[2]->player = &player;
+	ghosts[2]->players=GameManager::GetGameManager().players;
 	GameManager::GetGameManager().ghosts[2] = ghosts[2];
 
 	ghosts[3] = new Ghost(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), ORANGE, 80.0f);
-	ghosts[3]->player = &player;
+	ghosts[3]->players=GameManager::GetGameManager().players;
 	GameManager::GetGameManager().ghosts[3] = ghosts[3];
 
 	GameManager::GetGameManager().window = &window;
@@ -93,44 +58,33 @@ int main(int argc, char *argv[])
 			if (event.type == sf::Event::Closed)
 				window.close();
 			if (event.type == sf::Event::KeyPressed)
-			{
-				if (ConnectionType::CLIENT==connectionType)
+			{	
+				if (GameManager::GetGameManager().IsClient())
 				{
-					sf::Packet packet;
-					sf::Int32 keyToSend= event.key.code;
-					packet<<keyToSend;
-					sf::IpAddress recipient = sf::IpAddress::Broadcast;
-					clientListenSocket.send(packet, recipient, serverListenSocketPort);
-					
-					std::cout<<"Client pressed "<<keyToSend<<std::endl;
+					GameManager::GetGameManager().SendKeyPressToServer(event);
+					if(GameManager::GetGameManager().GetConnectionType() == ConnectionType::CLIENTONE)
+					{
+						playerOne.processEvents(event);
+					}
+					else
+					{
+						std::cout<<"Player two process event\n";
+						playerTwo.processEvents(event);
+					}
 				}
-				else if (ConnectionType::NONE==connectionType)
+				
+				if (GameManager::GetGameManager().IsStandalone())
 				{
-					player.processEvents(event);
+					playerOne.processEvents(event);
+					playerTwo.processEvents(event);
 				}
 			}
 		}
 		
-		if (ConnectionType::SERVER==connectionType)
+		if (GameManager::GetGameManager().IsServer())
 		{
-			sf::Packet packet;
-			sf::IpAddress senderAddress;
-			unsigned short senderPort;
-			if(serverListenSocket.receive(packet,senderAddress,senderPort)==sf::Socket::Done)
-			{
-				sf::Int32 receivedKeyCode;
-				packet>>receivedKeyCode;  
-				
-				std::cout << "New Message - "<<receivedKeyCode << " bytes from " << senderAddress << " on port " << senderPort << std::endl;
-				sf::Event receivedEvent;
-				receivedEvent.type = sf::Event::KeyPressed;
-				receivedEvent.key.code = (sf::Keyboard::Key)receivedKeyCode;
-				
-				player.processEvents(receivedEvent);
-			}
+			GameManager::GetGameManager().ProcessPacketListening();
 		}
-		
-		
 		
 		GameManager::GetGameManager().update(deltaTime);
 		window.clear();

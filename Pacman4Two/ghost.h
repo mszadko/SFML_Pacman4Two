@@ -14,6 +14,7 @@ enum GhostFrightenedState
 	FRIGHTENED,
 	FRIGHTENEDENDING
 };
+
 class Player;
 
 class Ghost:public AnimatedGridWalker
@@ -22,7 +23,7 @@ public:
 	Ghost(sf::Vector2f startPosition, Intersection* currentIntersection,GhostType type,float speed);
 	void update(sf::Time deltaTime);
 	GhostType type;
-	Player* player;
+	std::vector<Player*> players;
 	void SwitchFrightenedMode(GhostFrightenedState NewIsFrightened);
 	bool IsFrightened();
 	bool IsDead();
@@ -41,6 +42,8 @@ private:
 	void TogglePatrolMode();
 	void UpdateFrightenedMode();
 	void UpdateTurnedOffMode();
+	bool IsTherePlayerToChase();
+	Player* GetClosestPlayer();
 	Direction currentAnimDirection;
 	int milisecondsElapsedFromTargetSwitch;
 	int milisecondsElapsedDuringBeingFrightened;
