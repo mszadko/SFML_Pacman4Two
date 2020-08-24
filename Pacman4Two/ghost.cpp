@@ -203,7 +203,7 @@ void Ghost::FindNextDirection()
 {
 	if (targetIntersection)
 	{
-		int chosenIndex = 0;
+		int chosenIndex = -1;
 		float minimalDist = 99999.0f;
 
 		for (size_t i = 0; i < targetIntersection->neighbours.size(); i++)

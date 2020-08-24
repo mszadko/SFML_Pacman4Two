@@ -3,7 +3,7 @@
 
 GameManager::GameManager()
 {
-	gameState = GameState::RUNNING;//GameState::STOPPED;
+	gameState = GameState::STOPPED;
 	connectionType = ConnectionType::NONE;
 	
 	clientOneSocket.setBlocking(false);
@@ -15,6 +15,11 @@ GameManager& GameManager::GetGameManager()
 {
 	static GameManager instance;
 	return instance;
+}
+
+void GameManager::StartGame()
+{
+	gameState = GameState::RUNNING;
 }
 
 void GameManager::SetupNetworking(int argc, char* argv[])

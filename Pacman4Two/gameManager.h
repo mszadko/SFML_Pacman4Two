@@ -30,7 +30,7 @@ public:
 	void SendKeyPressToAnotherClient(sf::Event event, ConnectionType clientToSendTo);
 	void ProcessServerPacketListening();
 	void ProcessClientPacketListening();
-	
+	void StartGame();
 private:
 	void updateGhosts(sf::Time deltaTime);
 	void updatePlayers(sf::Time deltaTime);

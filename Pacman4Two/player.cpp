@@ -1,4 +1,5 @@
 #include "player.h"
+#include "gameManager.h"
 #include <iostream>
 #include <math.h>
 
@@ -66,6 +67,10 @@ void Player::processEvents(sf::Event event)
 	if (event.key.code == sf::Keyboard::A)
 	{
 		Restart();
+	}
+	else if(event.key.code == sf::Keyboard::Space)
+	{
+		GameManager::GetGameManager().StartGame();
 	}
 
 	if (bIsDead)

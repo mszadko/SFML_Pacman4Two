@@ -15,36 +15,36 @@
 
 int main(int argc, char *argv[])
 {
-	GameManager::GetGameManager().SetupNetworking(argc,argv);
-	
-	Level level;
-	GameManager::GetGameManager().level = &level;
 	sf::RenderWindow window(sf::VideoMode(448, 496), "Pacman!");
 	window.setVerticalSyncEnabled(true);
 
+	Level level;
+	
 	Player playerOne(sf::Vector2f(14*16.0f, 17*16.0f), level.GetIntersectionAt(14, 17),PlayerNumer::FIRST, 90.0f);
 	Player playerTwo(sf::Vector2f(13*16.0f, 17*16.0f), level.GetIntersectionAt(13, 17),PlayerNumer::SECOND, 90.0f);
+
+	std::array<Ghost*, 4> ghosts{{ nullptr }};
+	Ghost ghosts0(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), RED, 80.0f);
+	Ghost ghosts1(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), PINK, 80.0f);
+	Ghost ghosts2(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), BLUE, 80.0f);
+	Ghost ghosts3(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), ORANGE, 80.0f);
+	ghosts[0]=&ghosts0;
+	ghosts[1]=&ghosts1;
+	ghosts[2]=&ghosts2;
+	ghosts[3]=&ghosts3;
+	
+	GameManager::GetGameManager().window = &window;
+	GameManager::GetGameManager().level = &level;
 	GameManager::GetGameManager().players.push_back(&playerOne);
 	GameManager::GetGameManager().players.push_back(&playerTwo);
+	GameManager::GetGameManager().ghosts=ghosts;
+	GameManager::GetGameManager().SetupNetworking(argc,argv);
 	
-	std::array<Ghost*, 4> ghosts{ nullptr };
-	ghosts[0] = new Ghost(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), RED, 80.0f);
 	ghosts[0]->players=GameManager::GetGameManager().players;
-	GameManager::GetGameManager().ghosts[0] = ghosts[0];
-
-	ghosts[1] = new Ghost(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), PINK, 80.0f);
 	ghosts[1]->players=GameManager::GetGameManager().players;
-	GameManager::GetGameManager().ghosts[1] = ghosts[1];
-
-	ghosts[2] = new Ghost(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), BLUE, 80.0f);
 	ghosts[2]->players=GameManager::GetGameManager().players;
-	GameManager::GetGameManager().ghosts[2] = ghosts[2];
-
-	ghosts[3] = new Ghost(sf::Vector2f(11 * 16.0f, 13 * 16.0f), level.GetIntersectionAt(11, 13), ORANGE, 80.0f);
 	ghosts[3]->players=GameManager::GetGameManager().players;
-	GameManager::GetGameManager().ghosts[3] = ghosts[3];
 
-	GameManager::GetGameManager().window = &window;
 
 	sf::Clock tickClock;
 
@@ -89,13 +89,14 @@ int main(int argc, char *argv[])
 			GameManager::GetGameManager().ProcessClientPacketListening();
 		}
 		
-		
-		
 		GameManager::GetGameManager().update(deltaTime);
+		
 		window.clear();
 		GameManager::GetGameManager().draw();
 		window.display();
 
 	}
+	
+	
 	return 0;
 }
