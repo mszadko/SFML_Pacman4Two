@@ -19,6 +19,7 @@ GameManager& GameManager::GetGameManager()
 
 void GameManager::StartGame()
 {
+	StageCleared();
 	gameState = GameState::RUNNING;
 }
 
@@ -400,7 +401,6 @@ void GameManager::drawPlayers()
 
 void GameManager::ProcessCollisionCheck()
 {
-	return;
 	size_t numberOfGhosts = ghosts.size();
 	size_t numberOfPlayers = players.size();
 	
@@ -454,5 +454,5 @@ void GameManager::StageCleared()
 	{
 		players[playerIndex]->Restart();
 	}
-	
+	gameState = GameState::STOPPED;
 }
