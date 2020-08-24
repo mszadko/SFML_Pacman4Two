@@ -1,20 +1,6 @@
 #pragma once
 #include "animatedGridWalker.h"
 
-enum GhostType
-{
-	RED,
-	PINK,
-	BLUE,
-	ORANGE
-};
-enum GhostFrightenedState
-{
-	NOTFRIGHTENED,
-	FRIGHTENED,
-	FRIGHTENEDENDING
-};
-
 class Player;
 
 class Ghost:public AnimatedGridWalker
@@ -32,7 +18,8 @@ public:
 protected:
 	virtual void UpdateAnimation(sf::Time deltaTime);
 	virtual bool IsIntersectionValid(Intersection* intersectionToCheck);
-	void FindNextDirection();
+	virtual void OnTargetOvershot();
+	Direction FindNextDirection();
 	GhostFrightenedState frightenedState;
 	bool bIsReturningToBase;
 	bool bIsOnPatrol;

@@ -3,6 +3,7 @@
 #include <iostream>
 #include "player.h"
 #include "sharedEnumerations.h"
+#include "gameManager.h"
 
 Ghost::Ghost(sf::Vector2f startPosition, Intersection * currentIntersection, GhostType type, float speed)
 	: AnimatedGridWalker(startPosition, currentIntersection, "Textures/ghostsspritesheet.png", speed)
@@ -116,7 +117,6 @@ void Ghost::update(sf::Time deltaTime)
 	AnimatedGridWalker::update(deltaTime);
 	Move(deltaTime);
 	sprite.setPosition(CalculateSpritePosition());
-	FindNextDirection();
 	TogglePatrolMode();
 	if (bIsReturningToBase)
 	{
@@ -199,7 +199,18 @@ bool Ghost::IsIntersectionValid(Intersection * intersectionToCheck)
 	return false;
 }
 
-void Ghost::FindNextDirection()
+void Ghost::OnTargetOvershot()
+{
+	if (GameManager::GetGameManager().IsAuthority())
+	{
+		Direction newDir = FindNextDirection();
+		sf::Vector2f correctedPosition(targetIntersection->intersectionPosition.x*ftileSize, targetIntersection->intersectionPosition.y*ftileSize);
+		WalkableID id = (WalkableID)type;
+		GameManager::GetGameManager().SendPositionCorrectionToAnotherClients(newDir,correctedPosition,id);
+	}
+}
+
+Direction Ghost::FindNextDirection()
 {
 	if (targetIntersection)
 	{
@@ -215,7 +226,7 @@ void Ghost::FindNextDirection()
 				if (!IsTherePlayerToChase())
 				{
 					SetNextDirection(targetIntersection->directions[i]);
-					break;
+					return targetIntersection->directions[i];
 				}
 				else
 				{
@@ -223,7 +234,7 @@ void Ghost::FindNextDirection()
 					if (!playerToChase)
 					{
 						SetNextDirection(targetIntersection->directions[i]);
-						break;
+						return targetIntersection->directions[i];
 					}
 					
 					sf::Vector2f targetPosition = (bIsOnPatrol||frightenedState) ? patrolPoint : playerToChase->getPosition();
@@ -240,6 +251,7 @@ void Ghost::FindNextDirection()
 			}
 		}
 		SetNextDirection(targetIntersection->directions[chosenIndex]);
+		return targetIntersection->directions[chosenIndex];
 	}
 }
 

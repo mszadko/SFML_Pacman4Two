@@ -17,6 +17,7 @@ public:
 protected:
 	virtual bool IsIntersectionValid(Intersection* intersectionToCheck);
 	virtual void UpdateAnimation(sf::Time deltaTime);
+	virtual void OnTargetOvershot();
 private:	
 	bool bIsDead;
 	Direction currentAnimDirection;

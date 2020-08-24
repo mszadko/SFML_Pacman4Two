@@ -18,6 +18,8 @@ void GridWalker::Move(sf::Time deltaTime)
 	{
 		if (OvershotTarget())
 		{
+			OnTargetOvershot();
+			
 			currentIntersection = targetIntersection;
 
 			setPosition(sf::Vector2f(currentIntersection->intersectionPosition.x*ftileSize, currentIntersection->intersectionPosition.y*ftileSize));
@@ -62,6 +64,13 @@ void GridWalker::Move(sf::Time deltaTime)
 			}
 		}
 	}
+}
+
+void GridWalker::CorrectPosition(sf::Vector2f correctedPosition, Direction newDir, Intersection* newTargetIntersection)
+{
+	setPosition(correctedPosition);
+	SetNextDirection(newDir);
+	targetIntersection = newTargetIntersection;
 }
 
 void GridWalker::SetNextDirection(Direction newDirection)
@@ -198,4 +207,9 @@ sf::Vector2f GridWalker::DirectionToVector(Direction direction)
 		return sf::Vector2f(0.0f, 0.0f);
 		break;
 	}
+}
+
+void GridWalker::OnTargetOvershot()
+{
+	
 }

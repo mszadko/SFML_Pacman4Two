@@ -7,13 +7,9 @@
 enum PacketTag
 {
 	Empty,
-	ToServerToggleGameState,
 	ToServerClientPressedButton,
 	ToClientPlayerNewWalkInfo,
-	ToClientPlayerPositionCorrection,
-	ToClientGhostNewWalkInfo,
-	ToClientGhostPositionCorrection,
-	ToClientToggleGameState,
+	ToClientPositionCorrection
 };
 
 enum Direction
@@ -50,6 +46,30 @@ enum PlayerNumer
 {
 	FIRST = 0,
 	SECOND = 1
+};
+
+enum WalkableID
+{
+	GHOSTONE,
+	GHOSTTWO,
+	GHOSTTHREE,
+	GHOSTFOUR,
+	PLAYERONE,
+	PLAYERTWO
+};
+
+enum GhostType
+{
+	RED,
+	PINK,
+	BLUE,
+	ORANGE
+};
+enum GhostFrightenedState
+{
+	NOTFRIGHTENED,
+	FRIGHTENED,
+	FRIGHTENEDENDING
 };
 
 static const int mapWidth = 28;

@@ -10,13 +10,14 @@ public:
 	void Move(sf::Time deltaTime);
 	void SetNextDirection(Direction newDirection);
 	sf::Vector2i PositionToMapCoord();
+	void CorrectPosition(sf::Vector2f correctedPosition, Direction newDir, Intersection* newTargetIntersection);
 protected:
 	virtual bool IsIntersectionValid(Intersection* intersectionToCheck);
 	Direction direction;
 	Intersection* currentIntersection, *previousIntersection, *targetIntersection;
 	Direction nextDirection;
 	void ResetMovement();
-
+	virtual void OnTargetOvershot();
 	sf::Vector2f respawnLocation;
 	Intersection* respawnIntersection;
 private:

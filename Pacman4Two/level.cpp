@@ -161,6 +161,13 @@ Intersection* Level::GetIntersectionAt(sf::Vector2i location)
 	return GetIntersectionAt(location.x, location.y);
 }
 
+Intersection* Level::GetIntersectionAt(sf::Vector2f location)
+{
+	sf::Vector2i locationToMapCoords((int)roundf(location.x / ftileSize), (int)roundf(location.y / ftileSize));
+	return GetIntersectionAt(locationToMapCoords);
+}
+	
+
 void Level::recalculateSum()
 {
 	for (size_t i = 0; i < mapWidth*mapHeight; i++)

@@ -15,6 +15,7 @@ public:
 	void recalculateSum();
 	Intersection*  GetIntersectionAt(int x, int y);
 	Intersection* GetIntersectionAt(sf::Vector2i location);
+	Intersection* GetIntersectionAt(sf::Vector2f location);
 	FoodType ConsumeFood(sf::Vector2i location);
 	int GetFoodLeft();
 private:

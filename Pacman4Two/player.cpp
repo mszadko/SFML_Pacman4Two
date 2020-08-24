@@ -174,3 +174,14 @@ bool Player::IsIntersectionValid(Intersection * intersectionToCheck)
 
 }
 
+void Player::OnTargetOvershot()
+{
+	if (GameManager::GetGameManager().IsAuthority())
+	{
+		sf::Vector2f correctedPosition(targetIntersection->intersectionPosition.x*ftileSize, targetIntersection->intersectionPosition.y*ftileSize);
+		int walkableId = (int)playerNumber;
+		walkableId += (int) PLAYERONE;
+		WalkableID id = (WalkableID) walkableId;
+		GameManager::GetGameManager().SendPositionCorrectionToAnotherClients(nextDirection,correctedPosition,id);
+	}
+}

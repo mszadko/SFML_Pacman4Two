@@ -68,6 +68,28 @@ void GameManager::SendKeyPressToAnotherClient(sf::Event event, ConnectionType cl
 	SendServerToClientPacket(packet,clientToSendTo);
 }
 
+void GameManager::SendPositionCorrectionToAnotherClients(Direction newDir,sf::Vector2f correctedPosition,WalkableID id)
+{
+	sf::Packet packet;
+	sf::Int8 packetFlag = (sf::Int8) PacketTag::ToClientPositionCorrection;
+	
+	packet << packetFlag;
+	
+	packet << correctedPosition.x;
+	packet << correctedPosition.y;
+	
+	sf::Int8 directionId = (sf::Int8)newDir;
+	
+	packet << directionId;
+	
+	sf::Int8 walkableId = (sf::Int8)id;
+	
+	packet << walkableId;
+	
+	SendServerToClientPacket(packet,ConnectionType::CLIENTONE);
+	SendServerToClientPacket(packet,ConnectionType::CLIENTTWO);
+}
+
 void GameManager::ProcessServerPacketListening()
 {
 	sf::Packet packet;
@@ -100,9 +122,6 @@ void GameManager::ProcessServerPacketListening()
 		
 		switch (receivedPacketTag)
 		{
-			case ToServerToggleGameState:
-				
-				break;
 			case ToServerClientPressedButton:
 				{
 					sf::Int32 receivedKeyCode;
@@ -116,10 +135,7 @@ void GameManager::ProcessServerPacketListening()
 				break;
 				
 			case ToClientPlayerNewWalkInfo:
-			case ToClientPlayerPositionCorrection:
-			case ToClientGhostNewWalkInfo:
-			case ToClientGhostPositionCorrection:
-			case ToClientToggleGameState:
+			case ToClientPositionCorrection:
 			default:
 				break;
 		}
@@ -153,19 +169,42 @@ void GameManager::ProcessClientPacketListening()
 					players[GetConnectionType() == ConnectionType::CLIENTONE ? 1 : 0]->processEvents(receivedEvent);
 				}
 				break;
-			case ToClientPlayerPositionCorrection:
-				
+			case ToClientPositionCorrection:
+				{
+					sf::Vector2f correctedPosition;
+					packet >> correctedPosition.x;
+					packet >> correctedPosition.y;
+					
+					sf::Int8 directionId;
+	
+					packet >> directionId;
+					
+					Direction newDir = (Direction) directionId;
+
+					sf::Int8 walkableId;
+	
+					packet >> walkableId;
+					
+					WalkableID walkable = (WalkableID) walkableId;
+					switch (walkable)
+					{
+						case GHOSTONE:
+						case GHOSTTWO:
+						case GHOSTTHREE:
+						case GHOSTFOUR:
+							ghosts[walkable]->CorrectPosition(correctedPosition,newDir,level->GetIntersectionAt(correctedPosition));
+							break;
+						case PLAYERONE:
+							players[0]->CorrectPosition(correctedPosition,newDir,level->GetIntersectionAt(correctedPosition));
+							break;
+						case PLAYERTWO:
+							players[1]->CorrectPosition(correctedPosition,newDir,level->GetIntersectionAt(correctedPosition));
+							break;
+						default:
+							break;
+					}
+				}
 				break;
-			case ToClientGhostNewWalkInfo:
-				
-				break;
-			case ToClientGhostPositionCorrection:
-				
-				break;
-			case ToClientToggleGameState:
-				
-				break;
-			case ToServerToggleGameState:
 			case ToServerClientPressedButton:
 			default:
 				break;
@@ -251,6 +290,11 @@ bool GameManager::IsClient()
 bool GameManager::IsStandalone()
 {
 	return connectionType == ConnectionType::NONE;
+}
+
+bool GameManager::IsAuthority()
+{
+	return connectionType == ConnectionType::NONE || connectionType == ConnectionType::SERVER;
 }
 
 void GameManager::SetGameState(GameState newGameState)
@@ -396,7 +440,6 @@ void GameManager::ProcessCollisionCheck()
 
 void GameManager::StageCleared()
 {
-	//gameState = STOPPED;
 	level->reinit();
 	size_t numberOfGhosts = ghosts.size();
 	for (size_t ghostIndex = 0; ghostIndex < numberOfGhosts; ghostIndex++)

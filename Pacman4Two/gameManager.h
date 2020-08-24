@@ -24,10 +24,12 @@ public:
 	bool IsServer();
 	bool IsClient();
 	bool IsStandalone();
+	bool IsAuthority();
 	void SetGameState(GameState newGameState);
 	void SetupNetworking(int argc, char* argv[]);
 	void SendKeyPressToServer(sf::Event event);
 	void SendKeyPressToAnotherClient(sf::Event event, ConnectionType clientToSendTo);
+	void SendPositionCorrectionToAnotherClients(Direction newDir,sf::Vector2f correctedPosition,WalkableID id);
 	void ProcessServerPacketListening();
 	void ProcessClientPacketListening();
 	void StartGame();
