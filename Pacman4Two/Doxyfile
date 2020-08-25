@@ -1,0 +1,13 @@
+﻿DOXYFILE_ENCODING      = UTF-8
+
+PROJECT_NAME           = "Pacman"
+
+GENERATE_HTML = YES
+
+HTML_OUTPUT = html/
+
+HTML_FILE_EXTENSION = .html
+
+HAVE_DOT = NO
+
+GENERATE_LATEX = NO

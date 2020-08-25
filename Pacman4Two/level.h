@@ -4,19 +4,55 @@
 #include "sharedEnumerations.h"
 class Intersection;
 
+/**Class responsible for handling level related behaviour.
+ */
 class Level : public sf::Drawable
 {
 public:
+	/**Construcor
+     * Creates map from data from header file.
+     */
 	Level();
+	/**Destructor
+	 * Frees alocated memory for intersections
+	 */
 	~Level();
+	/**Reinitialization of level
+	 * Restores starting values of some properties. Respawns food on level.
+	 */
 	void reinit();
+	/** Core function of all game objects.
+	*  It is called every frame to update state of the object.
+	*  deltaTime parameter is time elapsed from previous update.
+	*/
 	void update(sf::Time deltaTime);
+	/**Creates intersection used for pacman movement.
+	 * Creates intersection from data from header.
+	 * Populates neighbours and intersection's directions that are crucial to movement implementation.
+	 */
 	void processIntersectionArray();
+	/**Recalculates data that is lated displayed to players.
+	 * It combines texture tiles ids like walls and food into one array that is used for drawing whole level.
+	 */
 	void recalculateSum();
-	Intersection*  GetIntersectionAt(int x, int y);
+	/**Returns intersection (or nullptr) at given location.
+	 * Takes level coordinates as parameters.
+	 */
+	Intersection* GetIntersectionAt(int x, int y);
+	/**Returns intersection (or nullptr) at given location.
+	 * Takes level coordinates as sf::Vector2i as parameter.
+	 */
 	Intersection* GetIntersectionAt(sf::Vector2i location);
+	/**Returns intersection (or nullptr) at given location.
+	 * Takes sf::Vector2f as parameter.
+	 */
 	Intersection* GetIntersectionAt(sf::Vector2f location);
+	/**Consumes food at given location.
+	 * Returns food type enum that informs method user what food have been eaten.
+	 */
 	FoodType ConsumeFood(sf::Vector2i location);
+	/**Returns how much food left on the level. 
+	 */
 	int GetFoodLeft();
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
