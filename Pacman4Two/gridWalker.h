@@ -41,11 +41,11 @@ protected:
 	/**Intersection
 	 * needed to process intersection to intersection based movement.
 	 */
-	Intersection* currentIntersection, 
+	Intersection* currentIntersection;
 	/**Intersection
 	 * needed to process intersection to intersection based movement.
 	 */
-	Intersection* previousIntersection
+	Intersection* previousIntersection;
 	/**Intersection
 	 * needed to process intersection to intersection based movement.
 	 */
