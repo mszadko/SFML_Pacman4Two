@@ -225,12 +225,13 @@ sf::Socket::Status GameManager::SendClientToServerPacket(sf::Packet &packet)
 	{
 		return clientTwoSocket.send(packet, recipient, serverPort);
 	}
+	return sf::Socket::Status::Error;
 }	
 
 sf::Socket::Status GameManager::SendServerToClientPacket(sf::Packet &packet, ConnectionType clientToSendTo)
 {
 	sf::IpAddress recipient = sf::IpAddress::Broadcast;
-	serverSocket.send(packet,recipient, ConnectionType::CLIENTONE==clientToSendTo? clientOnePort : clientTwoPort);
+	return serverSocket.send(packet,recipient, ConnectionType::CLIENTONE==clientToSendTo? clientOnePort : clientTwoPort);
 }
 
 void GameManager::SetConnectionType(ConnectionType newConnectionType)
